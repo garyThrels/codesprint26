@@ -1,0 +1,38 @@
+name: Deploy Dev Environment
+
+on:
+    push:
+        branches: [ main, development ]
+
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v2
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: 8.5
+                  tools: composer:v2
+                  coverage: none
+            - name: Require Vapor CLI
+              run: composer global require laravel/vapor-cli
+            - name: Install Project Dependencies
+              run: composer install --no-interaction --prefer-dist --optimize-autoloader
+            - name: Deploy Environment
+              run: |
+                if [ "${{ github.ref }}" == "refs/heads/develop" ]; then
+                echo "Deploying development environment..."
+                vapor deploy development --commit="${{ github.sha }}" --message="${{ github.event.head_commit.message }}"
+                elif [ "${{ github.ref }}" == "refs/heads/main" ]; then
+                echo "Deploying staging environment..."
+                vapor deploy staging --commit="${{ github.sha }}" --message="${{ github.event.head_commit.message }}"
+                echo "Deploying production environment..."
+                vapor deploy production --commit="${{ github.sha }}" --message="${{ github.event.head_commit.message }}"
+                else
+                echo "Branch not configured for deployment"
+                exit 0
+                fi
+              env:
+                VAPOR_API_TOKEN: ${{ secrets.VAPOR_API_TOKEN }}

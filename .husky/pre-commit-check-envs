@@ -1,0 +1,45 @@
+#!/bin/bash
+
+# Exit when any command fails
+set -e
+
+echo -e "${YELLOW}Running pre-commit hooks...${NC}"
+
+display_error() {
+    echo -e "${RED}❌ $1${NC}"
+    exit 1
+}
+
+command_exists() {
+    command -v "$1" >/dev/null 2>&1
+}
+
+artisan_command_exists() {
+    php artisan list --raw | grep -n "$1" >/dev/null 2>&1
+}
+
+
+# Run Linter
+echo "🔍 Running Linter.."
+
+if ! command -v duster >/dev/null 2>&1; then
+  echo "⚠️  Duster not installed, skipping..."
+  exit 0
+fi
+npx --no-install lint-staged
+
+
+# Run Env Validation
+if artisan_command_exists "check-env"; then
+    echo "🔍 Running env validation..."
+    php artisan check-env || display_error "Env validation found issues"
+fi
+
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
+
+echo -e "${GREEN}✅ All pre-commit hooks passed!${NC}"
+exit 0

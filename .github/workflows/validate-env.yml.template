@@ -1,0 +1,39 @@
+name: Validate env
+
+on:
+  push:
+    branches: [ develop, main ]
+  pull_request:
+    types: [ opened, synchronize, reopened ]
+
+jobs:
+  check-env:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        environment: [development]
+    environment: ${{ matrix.environment }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup PHP with PECL extension
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          extensions: intl, exif, gd, zip
+          tools: phpstan
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: composer-${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
+          restore-keys: composer-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: composer install --no-progress --no-suggest --prefer-dist --no-interaction
+
+      - name: Run environment check
+        run: php artisan check-env-ci --env=${{ matrix.environment }} --key=${{ secrets.LARAVEL_ENV_ENCRYPTION_KEY }}
