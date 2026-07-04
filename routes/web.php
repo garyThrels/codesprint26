@@ -17,6 +17,8 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::get('dashboard', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
 
     Route::resource('campaigns', \App\Http\Controllers\Admin\CampaignController::class);
+    Route::post('campaigns/{campaign}/media', [\App\Http\Controllers\Admin\CampaignController::class, 'uploadMedia'])->name('campaigns.media');
+    Route::resource('charities', \App\Http\Controllers\Admin\CharityController::class);
     Route::get('ledger', [\App\Http\Controllers\Admin\DonationLedgerController::class, 'index'])->name('ledger.index');
     Route::get('ledger/reconciliation', [\App\Http\Controllers\Admin\DonationLedgerController::class, 'reconciliation'])->name('ledger.reconciliation');
 

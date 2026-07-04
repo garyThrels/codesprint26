@@ -1,6 +1,8 @@
 import { Head, Link } from '@inertiajs/react';
-import { Heart, ChevronRight, Users } from 'lucide-react';
+import { Heart, ChevronRight, ShieldCheck } from 'lucide-react';
+import { useMemo } from 'react';
 import { show as showCampaign } from '@/routes/campaigns';
+import { generateCampaignPalette } from '@/lib/colors';
 
 interface Campaign {
     id: number;
@@ -11,6 +13,7 @@ interface Campaign {
     charity: {
         name: string;
         brand_color: string;
+        surface_tint: 'warm' | 'cool' | 'neutral';
         logo_url: string;
     };
     currency: {
@@ -19,183 +22,243 @@ interface Campaign {
     };
 }
 
+function CampaignCard({ campaign }: { campaign: Campaign }) {
+    const palette = useMemo(
+        () =>
+            generateCampaignPalette(
+                campaign.charity.brand_color,
+                campaign.charity.surface_tint || 'warm',
+            ),
+        [campaign.charity.brand_color, campaign.charity.surface_tint],
+    );
+
+    return (
+        <Link href={showCampaign(campaign.id)} className="group block">
+            <article
+                className="flex h-full flex-col overflow-hidden rounded-[2rem] border transition-all duration-500 group-hover:-translate-y-2 group-hover:shadow-2xl"
+                style={{
+                    backgroundColor: 'white',
+                    borderColor: palette['surface-secondary'],
+                    boxShadow: '0 10px 30px -15px rgba(0,0,0,0.05)',
+                }}
+            >
+                <div className="relative aspect-4/3 overflow-hidden">
+                    {campaign.hero_url ? (
+                        <img
+                            src={campaign.hero_url}
+                            alt={campaign.name}
+                            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        />
+                    ) : (
+                        <div className="h-full w-full bg-zinc-100"></div>
+                    )}
+                    <div className="absolute top-4 left-4">
+                        <div className="flex items-center gap-2 rounded-xl bg-white/90 px-3 py-1.5 shadow-sm backdrop-blur-md">
+                            {campaign.charity.logo_url && (
+                                <img
+                                    src={campaign.charity.logo_url}
+                                    alt={campaign.charity.name}
+                                    className="h-4 w-4 object-contain"
+                                />
+                            )}
+                            <span
+                                className="font-inter text-[10px] font-bold tracking-widest uppercase"
+                                style={{ color: palette['foreground-primary'] }}
+                            >
+                                {campaign.charity.name}
+                            </span>
+                        </div>
+                    </div>
+                    {/* Hover Overlay */}
+                    <div
+                        className="absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-10"
+                        style={{ backgroundColor: palette['accent-primary'] }}
+                    />
+                </div>
+
+                <div className="flex grow flex-col space-y-3 p-7">
+                    <h3
+                        className="font-playfair line-clamp-1 text-2xl font-bold"
+                        style={{ color: palette['foreground-primary'] }}
+                    >
+                        {campaign.name}
+                    </h3>
+                    <p
+                        className="font-inter line-clamp-2 text-sm leading-relaxed font-medium"
+                        style={{ color: palette['foreground-secondary'] }}
+                    >
+                        {campaign.tagline}
+                    </p>
+
+                    <div className="mt-auto space-y-4 pt-4">
+                        <div
+                            className="h-1.5 w-full overflow-hidden rounded-full"
+                            style={{
+                                backgroundColor: palette['surface-secondary'],
+                            }}
+                        >
+                            <div
+                                className="h-full rounded-full transition-all duration-1000 group-hover:opacity-80"
+                                style={{
+                                    width: '45%',
+                                    backgroundColor: palette['accent-primary'],
+                                }}
+                            />
+                        </div>
+                        <div className="flex items-center justify-between">
+                            <div className="flex flex-col">
+                                <span
+                                    className="font-geist text-[14px] font-bold"
+                                    style={{
+                                        color: palette['foreground-primary'],
+                                    }}
+                                >
+                                    {campaign.currency.symbol}
+                                    {(
+                                        campaign.goal_amount / 100
+                                    ).toLocaleString()}
+                                </span>
+                                <span
+                                    className="font-inter text-[10px] font-bold tracking-wider uppercase"
+                                    style={{
+                                        color: palette['foreground-muted'],
+                                    }}
+                                >
+                                    Target Goal
+                                </span>
+                            </div>
+                            <div
+                                className="flex h-10 w-10 items-center justify-center rounded-full transition-all duration-300 group-hover:scale-110"
+                                style={{
+                                    backgroundColor: palette['accent-primary'],
+                                    color: 'white',
+                                }}
+                            >
+                                <ChevronRight className="h-5 w-5" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </article>
+        </Link>
+    );
+}
+
 export default function Welcome({ campaigns }: { campaigns: Campaign[] }) {
     return (
-        <div className="min-h-screen bg-zinc-50 font-sans selection:bg-zinc-900 selection:text-white dark:bg-zinc-950">
+        <div className="font-inter min-h-screen bg-[#F9F9F8]">
             <Head title="Tap For Good - Every Tap Matters" />
 
-            {/* Hero Section */}
-            <section className="relative flex h-[70vh] items-center justify-center overflow-hidden bg-zinc-900">
+            {/* Premium Hero Section */}
+            <section className="relative flex h-[85vh] items-center justify-center overflow-hidden">
                 <div className="absolute inset-0 z-0">
-                    <div className="absolute inset-0 bg-linear-to-b from-black/40 via-black/20 to-zinc-50 dark:to-zinc-950"></div>
+                    <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-[#F9F9F8]" />
                     <img
                         src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?ixlib=rb-4.0.3&auto=format&fit=crop&w=2340&q=80"
                         alt="Hero background"
-                        className="h-full w-full object-cover opacity-60"
+                        className="animate-pulse-slow h-full w-full scale-105 object-cover"
                     />
                 </div>
 
                 <div className="relative z-10 mx-auto max-w-5xl space-y-8 px-4 text-center">
-                    <div className="inline-flex animate-in items-center gap-3 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-bold tracking-widest text-white uppercase backdrop-blur-md duration-700 fade-in slide-in-from-bottom">
+                    <div className="inline-flex items-center gap-3 rounded-full border border-white/20 bg-white/10 px-5 py-2.5 text-[11px] font-bold tracking-[0.2em] text-white uppercase backdrop-blur-xl transition-all hover:bg-white/20">
                         <Heart className="h-4 w-4 fill-red-500 text-red-500" />
-                        CodeSprint Charity Network
+                        CodeSprint Global Network
                     </div>
-                    <h1 className="animate-in text-6xl leading-tight font-black tracking-tighter text-white delay-150 duration-700 fade-in slide-in-from-bottom sm:text-8xl">
-                        Every Tap <br className="hidden sm:block" />
-                        <span className="text-zinc-400 italic">Matters.</span>
+                    <h1 className="font-playfair text-7xl leading-[1.1] font-black tracking-tight text-white sm:text-9xl">
+                        Every Tap <br />
+                        <span className="italic opacity-50">Matters.</span>
                     </h1>
-                    <p className="mx-auto max-w-2xl animate-in text-xl font-medium text-white/80 delay-300 duration-700 fade-in slide-in-from-bottom sm:text-2xl">
-                        Join our mission to empower communities and save lives
-                        through simple, secure, and meaningful giving.
+                    <p className="font-inter mx-auto max-w-xl text-lg font-medium text-white/90 sm:text-xl">
+                        A seamless, secure way to support the causes you love.
+                        Direct impact, powered by Mastercard.
                     </p>
                 </div>
             </section>
 
             {/* Campaigns Grid */}
-            <main className="relative z-20 mx-auto -mt-24 max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
-                <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+            <main className="relative z-20 mx-auto -mt-32 max-w-7xl px-4 pb-32 sm:px-6 lg:px-8">
+                <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-3">
                     {campaigns.map((campaign) => (
-                        <Link
-                            key={campaign.id}
-                            href={showCampaign(campaign.id)}
-                            className="group block"
-                        >
-                            <article className="flex h-full flex-col overflow-hidden rounded-[2.5rem] border border-zinc-100 bg-white shadow-xl transition-all duration-500 group-hover:-translate-y-2 hover:shadow-2xl dark:border-zinc-800 dark:bg-zinc-900">
-                                <div className="relative aspect-4/3 overflow-hidden">
-                                    {campaign.hero_url ? (
-                                        <img
-                                            src={campaign.hero_url}
-                                            alt={campaign.name}
-                                            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
-                                        />
-                                    ) : (
-                                        <div className="h-full w-full bg-zinc-200 dark:bg-zinc-800"></div>
-                                    )}
-                                    <div className="absolute top-4 left-4">
-                                        <div className="flex items-center gap-2 rounded-2xl bg-white/90 px-4 py-2 shadow-lg backdrop-blur-sm dark:bg-zinc-900/90">
-                                            <img
-                                                src={
-                                                    campaign.charity.logo_url ||
-                                                    '/images/placeholder-logo.png'
-                                                }
-                                                alt={campaign.charity.name}
-                                                className="h-5 w-5 object-contain"
-                                            />
-                                            <span className="text-[10px] font-black tracking-widest text-zinc-900 uppercase dark:text-zinc-100">
-                                                {campaign.charity.name}
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100"></div>
-                                </div>
-
-                                <div className="flex grow flex-col space-y-4 p-8">
-                                    <h3 className="line-clamp-1 text-2xl font-black tracking-tight text-zinc-900 dark:text-zinc-100">
-                                        {campaign.name}
-                                    </h3>
-                                    <p className="line-clamp-2 text-sm leading-relaxed font-medium text-zinc-500 dark:text-zinc-400">
-                                        {campaign.tagline}
-                                    </p>
-
-                                    <div className="mt-auto space-y-4 pt-4">
-                                        <div className="flex items-center justify-between text-xs font-black tracking-widest uppercase">
-                                            <span className="text-zinc-400">
-                                                Target
-                                            </span>
-                                            <span className="text-zinc-900 dark:text-zinc-100">
-                                                {campaign.currency.symbol}
-                                                {(campaign.goal_amount / 100).toLocaleString()}
-                                            </span>
-                                        </div>
-                                        <div className="h-1.5 w-full overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-800">
-                                            <div
-                                                className="h-full rounded-full transition-all duration-1000"
-                                                style={{
-                                                    width: '45%',
-                                                    backgroundColor:
-                                                        campaign.charity
-                                                            .brand_color,
-                                                }}
-                                            ></div>
-                                        </div>
-                                        <div className="flex items-center justify-between pt-2">
-                                            <div className="flex items-center gap-2 text-[10px] font-black tracking-widest text-zinc-400 uppercase">
-                                                <Users className="h-3.5 w-3.5" />
-                                                <span>482 Donors</span>
-                                            </div>
-                                            <div
-                                                className="flex items-center gap-1 text-sm font-black transition-transform group-hover:translate-x-1"
-                                                style={{
-                                                    color: campaign.charity
-                                                        .brand_color,
-                                                }}
-                                            >
-                                                Donate
-                                                <ChevronRight className="h-4 w-4" />
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </article>
-                        </Link>
+                        <CampaignCard key={campaign.id} campaign={campaign} />
                     ))}
 
-                    {/* Empty State / Add Campaign */}
+                    {/* Empty State */}
                     {campaigns.length === 0 && (
-                        <div className="col-span-full space-y-6 py-24 text-center">
-                            <div className="inline-flex rounded-[2.5rem] bg-zinc-100 p-6 dark:bg-zinc-800">
-                                <img src="/logo.png" alt="Tap For Good" className="h-12 w-12" />
+                        <div className="col-span-full space-y-6 py-32 text-center">
+                            <div className="inline-flex rounded-3xl bg-white p-8 shadow-sm">
+                                <Heart className="h-12 w-12 text-zinc-200" />
                             </div>
-                            <h2 className="text-3xl font-black tracking-tight text-zinc-900 dark:text-zinc-100">
-                                No active campaigns
+                            <h2 className="font-playfair text-3xl font-bold text-zinc-900">
+                                New campaigns incoming
                             </h2>
-                            <p className="mx-auto max-w-sm font-medium text-zinc-500">
-                                We are currently preparing new initiatives.
-                                Check back soon or register your charity to get
-                                started.
+                            <p className="font-inter mx-auto max-w-sm font-medium text-zinc-400">
+                                We're working with charities to launch
+                                meaningful initiatives. Check back very soon.
                             </p>
                         </div>
                     )}
                 </div>
             </main>
 
-            {/* Footer */}
-            <footer className="border-t border-zinc-100 bg-white py-16 dark:border-zinc-800 dark:bg-zinc-900">
-                <div className="mx-auto max-w-7xl space-y-8 px-4 text-center">
-                    <div className="flex items-center justify-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-900 text-xl font-black text-white dark:bg-zinc-100 dark:text-zinc-900">
-                            T
+            {/* Secure Footer Section */}
+            <section className="bg-white py-24">
+                <div className="mx-auto max-w-4xl space-y-12 px-4 text-center">
+                    <div className="space-y-4">
+                        <h2 className="font-playfair text-4xl font-bold text-zinc-900">
+                            Direct Impact, Guaranteed.
+                        </h2>
+                        <p className="font-inter text-lg text-zinc-500">
+                            100% of your donation goes directly to the charity's
+                            mission. Powered by global-standard security.
+                        </p>
+                    </div>
+                    <div className="flex flex-wrap items-center justify-center gap-12 opacity-40 grayscale">
+                        <div className="font-geist flex items-center gap-2 font-bold">
+                            <ShieldCheck className="h-6 w-6" />
+                            SSL SECURED
                         </div>
-                        <span className="text-2xl font-black tracking-tight">
+                        <div className="font-inter text-2xl font-black tracking-tighter">
+                            Mastercard.
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Footer */}
+            <footer className="bg-[#111111] py-20 text-white">
+                <div className="mx-auto max-w-7xl space-y-10 px-4 text-center">
+                    <div className="flex items-center justify-center gap-4">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white p-2">
+                            <img
+                                src="/logo.png"
+                                alt="Tap For Good"
+                                className="h-full w-full object-contain"
+                            />
+                        </div>
+                        <span className="font-playfair text-3xl font-bold tracking-tight">
                             Tap For Good
                         </span>
                     </div>
-                    <p className="mx-auto max-w-md font-medium text-zinc-500">
-                        A project built for CodeSprint 2026. Empowering
-                        charities through seamless digital transactions.
-                    </p>
-                    <div className="flex justify-center gap-8 text-xs font-black tracking-widest text-zinc-400 uppercase">
-                        <a
-                            href="#"
-                            className="transition-colors hover:text-zinc-900 dark:hover:text-zinc-100"
-                        >
-                            Privacy
-                        </a>
-                        <a
-                            href="#"
-                            className="transition-colors hover:text-zinc-900 dark:hover:text-zinc-100"
-                        >
-                            Terms
-                        </a>
-                        <a
-                            href="#"
-                            className="transition-colors hover:text-zinc-900 dark:hover:text-zinc-100"
-                        >
-                            Contact
-                        </a>
-                    </div>
+                    {/* <div className="flex justify-center gap-10 font-inter text-[11px] font-bold tracking-[0.2em] text-white/40 uppercase">
+                        <a href="#" className="hover:text-white transition-colors">Privacy</a>
+                        <a href="#" className="hover:text-white transition-colors">Terms</a>
+                        <a href="#" className="hover:text-white transition-colors">Contact</a>
+                    </div> */}
                 </div>
             </footer>
+
+            <style
+                dangerouslySetInnerHTML={{
+                    __html: `
+                @keyframes pulse-slow {
+                    0%, 100% { opacity: 0.6; transform: scale(1.05); }
+                    50% { opacity: 0.7; transform: scale(1.08); }
+                }
+                .animate-pulse-slow { animation: pulse-slow 10s infinite ease-in-out; }
+            `,
+                }}
+            />
         </div>
     );
 }

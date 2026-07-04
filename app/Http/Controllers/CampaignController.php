@@ -22,6 +22,7 @@ class CampaignController extends Controller
                 'charity' => [
                     'name' => $campaign->charity->name,
                     'brand_color' => $campaign->charity->brand_color,
+                    'surface_tint' => $campaign->charity->surface_tint,
                     'logo_url' => $campaign->charity->getFirstMediaUrl('logo'),
                 ],
                 'currency' => $campaign->currency,
@@ -41,6 +42,8 @@ class CampaignController extends Controller
                 'description_html' => $campaign->description_html,
                 'about_title' => $campaign->about_title,
                 'goal_amount' => $campaign->goal_amount,
+                'raised_amount' => $campaign->donations()->where('status', 'success')->sum('amount'),
+                'donor_count' => $campaign->donations()->where('status', 'success')->distinct('donor_email')->count('donor_email'),
                 'currency' => $campaign->currency,
                 'donation_presets' => $campaign->donation_presets,
                 'preselected_index' => $campaign->preselected_index,

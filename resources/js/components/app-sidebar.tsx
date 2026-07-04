@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { LayoutGrid, ScrollText, Shield } from 'lucide-react';
+import { LayoutGrid, ScrollText, Shield, Building2 } from 'lucide-react';
 import { Tag, BookOpen } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
@@ -19,6 +19,7 @@ import { dashboard } from '@/routes';
 import { dashboard as adminDashboard } from '@/routes/admin';
 import { index as auditLogIndex } from '@/routes/admin/audit-log';
 import { index as campaignsIndex } from '@/routes/admin/campaigns';
+import { index as charitiesIndex } from '@/routes/admin/charities';
 import { index as ledgerIndex } from '@/routes/admin/ledger';
 import type { NavItem } from '@/types';
 
@@ -45,6 +46,11 @@ export function AppSidebar() {
             title: 'Campaigns',
             href: campaignsIndex(),
             icon: Tag,
+        });
+        mainNavItems.push({
+            title: 'Charities',
+            href: charitiesIndex(),
+            icon: Building2,
         });
         mainNavItems.push({
             title: 'Ledger',

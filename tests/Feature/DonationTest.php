@@ -37,6 +37,30 @@ test('a donor can make a donation to a campaign', function () {
     ]);
 });
 
+test('a declined manual payment is marked as failed and flashes an error', function () {
+    $currency = Currency::factory()->create();
+    $campaign = Campaign::factory()->create(['currency_id' => $currency->id]);
+
+    $response = $this->post(route('donations.store'), [
+        'campaignId' => $campaign->id,
+        'amount' => 1000,
+        'currencyId' => $currency->id,
+        'paymentMethod' => 'manual',
+        'card' => [
+            'cardNumber' => '0000', // simulated decline
+            'expiryMonth' => '12',
+            'expiryYear' => '30',
+            'cvv' => '123',
+        ],
+    ]);
+
+    $response->assertRedirect();
+    $response->assertSessionHas('error');
+
+    $donation = Donation::first();
+    expect($donation->status->value)->toBe('failed');
+});
+
 test('a donation is marked as successful when using tap', function () {
     $currency = Currency::factory()->create();
     $campaign = Campaign::factory()->create(['currency_id' => $currency->id]);
