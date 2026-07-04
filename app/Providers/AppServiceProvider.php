@@ -2,11 +2,19 @@
 
 namespace App\Providers;
 
+use App\Listeners\AuditAuthEvents;
 use App\Models\User;
 use Carbon\CarbonImmutable;
 use Domain\Mastercard\Services\DonateClient;
+use Illuminate\Auth\Events\Login;
+use Illuminate\Auth\Events\Logout;
+use Illuminate\Auth\Events\PasswordReset;
+use Laravel\Fortify\Events\TwoFactorAuthenticationDisabled;
+use Laravel\Fortify\Events\TwoFactorAuthenticationEnabled;
+use Laravel\Fortify\Events\RecoveryCodesGenerated;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;

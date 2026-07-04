@@ -98,6 +98,10 @@ final class UserController extends Controller
 
         if (! empty($validated['password'])) {
             $user->update(['password' => Hash::make($validated['password'])]);
+            
+            activity()
+                ->performedOn($user)
+                ->log('User password updated by admin');
         }
 
         $user->syncRoles($validated['roles']);

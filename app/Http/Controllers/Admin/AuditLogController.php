@@ -55,6 +55,10 @@ final class AuditLogController extends Controller
 
         $filename = 'audit-log-'.now()->format('Y-m-d_His').'.'.$format;
 
+        activity()
+            ->withProperties(['filename' => $filename, 'format' => $format])
+            ->log('Exported audit log');
+
         return $format === 'csv'
             ? $toCsv($filename, $headings, $rows)
             : $toPdf($filename, 'Audit Log', $headings, $rows);

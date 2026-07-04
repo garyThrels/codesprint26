@@ -59,6 +59,10 @@ final class SecurityController extends Controller implements HasMiddleware
             'password' => $request->password,
         ]);
 
+        activity()
+            ->performedOn($user)
+            ->log('Password updated');
+
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Password updated.')]);
 
         return back();

@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Spatie\Activitylog\Models\Concerns\LogsActivity;
+use Spatie\Activitylog\Support\LogOptions;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
@@ -16,6 +18,7 @@ class Campaign extends Model implements HasMedia
 {
     use HasFactory;
     use InteractsWithMedia;
+    use LogsActivity;
 
     protected $fillable = [
         'charity_id',
@@ -40,6 +43,14 @@ class Campaign extends Model implements HasMedia
         'preselected_index' => 'integer',
         'status' => CampaignStatus::class,
     ];
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logFillable()
+            ->logOnlyDirty()
+            ->dontLogEmptyChanges();
+    }
 
     public function registerMediaCollections(): void
     {

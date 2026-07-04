@@ -113,6 +113,29 @@ test('the ledger can be filtered by amount', function () {
         ->get(route('admin.ledger.index', ['amount' => 20, 'amount_operator' => 'eq']))
         ->assertOk()
         ->assertInertia(fn ($page) => $page->has('donations.data', 1));
+
+    // Test with different currencies
+    Donation::query()->delete();
+    $usdCurrency = Currency::factory()->create(['code' => 'USD', 'symbol' => '$']);
+    
+    // 50 USD ($), but worth 40 EUR (€)
+    Donation::factory()->for($campaign)->create([
+        'amount' => 5000,
+        'amount_in_base_currency' => 4000,
+        'currency_id' => $usdCurrency->id,
+    ]);
+
+    // Filter by 40 EUR - should match
+    $this->actingAs($this->admin)
+        ->get(route('admin.ledger.index', ['amount' => 40, 'amount_operator' => 'eq']))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page->has('donations.data', 1));
+
+    // Filter by 50 EUR - should NOT match (even though original amount was 50 USD)
+    $this->actingAs($this->admin)
+        ->get(route('admin.ledger.index', ['amount' => 50, 'amount_operator' => 'eq']))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page->has('donations.data', 0));
 });
 
 test('the reconciliation view loads for an admin', function () {
@@ -129,18 +152,57 @@ test('the ledger can be exported to csv', function () {
 });
 
 test('exported ledger respects filters', function () {
+    Donation::query()->delete();
     $campaign = Campaign::first();
+
+    Donation::factory()->for($campaign)->create([
+        'status' => 'success',
+        'donor_name' => 'Success Donor',
+        'amount' => 1000,
+        'created_at' => now(),
+    ]);
+
     Donation::factory()->for($campaign)->create([
         'status' => 'failed',
         'donor_name' => 'Failed Donor',
+        'amount' => 2000,
+        'created_at' => now(),
     ]);
 
+    Donation::factory()->for($campaign)->create([
+        'status' => 'success',
+        'donor_name' => 'Old Donor',
+        'amount' => 3000,
+        'created_at' => now()->subDays(10),
+    ]);
+
+    // Filter by status
     $response = $this->actingAs($this->admin)
         ->get(route('admin.ledger.export', ['status' => 'success']));
-
     $response->assertOk();
     $content = $response->streamedContent();
-
-    expect($content)->toContain('Jane Donor')
+    expect($content)->toContain('Success Donor')
+        ->toContain('Old Donor')
         ->not->toContain('Failed Donor');
+
+    // Filter by date
+    $response = $this->actingAs($this->admin)
+        ->get(route('admin.ledger.export', [
+            'date_from' => now()->subDays(1)->toDateString(),
+            'date_to' => now()->addDays(1)->toDateString(),
+        ]));
+    $response->assertOk();
+    $content = $response->streamedContent();
+    expect($content)->toContain('Success Donor')
+        ->toContain('Failed Donor')
+        ->not->toContain('Old Donor');
+
+    // Filter by amount
+    $response = $this->actingAs($this->admin)
+        ->get(route('admin.ledger.export', ['amount' => 15, 'amount_operator' => 'gt']));
+    $response->assertOk();
+    $content = $response->streamedContent();
+    expect($content)->toContain('Failed Donor')
+        ->toContain('Old Donor')
+        ->not->toContain('Success Donor');
 });

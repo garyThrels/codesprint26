@@ -79,12 +79,6 @@ final class DonationProcessor
                 ]),
             ]);
 
-            // 4. Log the action (M2.7 Audit log)
-            activity()
-                ->performedOn($donation)
-                ->withProperties(['amount' => $data->amount, 'status' => $donation->status])
-                ->log($result['success'] ? 'Donation processed successfully' : 'Donation failed');
-
             return $donation;
         });
     }

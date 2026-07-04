@@ -15,6 +15,20 @@ class DonationFactory extends Factory
     protected $model = Donation::class;
 
     /**
+     * Default the base-currency amount to the donation amount (assumes the base
+     * currency / 1.0 rate) unless a test sets it explicitly. Keeps aggregate
+     * stats that sum `amount_in_base_currency` correct for factory data.
+     */
+    public function configure(): static
+    {
+        return $this->afterMaking(function (Donation $donation): void {
+            if (empty($donation->amount_in_base_currency)) {
+                $donation->amount_in_base_currency = $donation->amount;
+            }
+        });
+    }
+
+    /**
      * Define the model's default state.
      *
      * @return array<string, mixed>

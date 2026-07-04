@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Actions\Exports\ExportRowsToCsv;
 use App\Http\Controllers\Controller;
+use Domain\Campaign\Models\Campaign;
 use Domain\Donation\Models\Donation;
 use Domain\Donation\Services\DonationReceiptService;
 use Domain\Mastercard\Services\DonateClient;
@@ -24,7 +25,8 @@ class DonationLedgerController extends Controller
     {
         return Inertia::render('admin/ledger/index', [
             'donations' => $this->query($request)->paginate(20)->withQueryString(),
-            'filters' => $request->only(['search', 'status', 'campaign_id']),
+            'campaigns' => Campaign::all(),
+            'filters' => $request->only(['search', 'status', 'campaign_id', 'date_from', 'date_to', 'amount', 'amount_operator']),
         ]);
     }
 
@@ -61,6 +63,13 @@ class DonationLedgerController extends Controller
         ]);
 
         $filename = 'ledger-'.now()->format('Y-m-d_His').'.csv';
+
+        activity()
+            ->withProperties([
+                'filename' => $filename,
+                'filters' => $request->only(['search', 'status', 'campaign_id', 'date_from', 'date_to', 'amount', 'amount_operator']),
+            ])
+            ->log('Exported donation ledger');
 
         return $exportRowsToCsv($filename, $headings, $rows);
     }
@@ -142,6 +151,17 @@ class DonationLedgerController extends Controller
                 });
             })
             ->when($request->status, fn (Builder $query, string $status) => $query->where('status', $status))
-            ->when($request->campaign_id, fn (Builder $query, string $campaignId) => $query->where('campaign_id', $campaignId));
+            ->when($request->campaign_id, fn (Builder $query, string $campaignId) => $query->where('campaign_id', $campaignId))
+            ->when($request->date_from, fn (Builder $query, $date) => $query->whereDate('created_at', '>=', $date))
+            ->when($request->date_to, fn (Builder $query, $date) => $query->whereDate('created_at', '<=', $date))
+            ->when($request->filled('amount') && $request->amount_operator, function (Builder $query) use ($request) {
+                $amountInCents = (int) round($request->amount * 100);
+                $operator = match ($request->amount_operator) {
+                    'gt' => '>',
+                    'lt' => '<',
+                    default => '=',
+                };
+                $query->where('amount_in_base_currency', $operator, $amountInCents);
+            });
     }
 }
