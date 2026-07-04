@@ -63,10 +63,10 @@
     --color-sidebar-border: var(--sidebar-border);
     --color-sidebar-ring: var(--sidebar-ring);
 
-    --color-brand-primary: var(--brand-accent-primary);
-    --color-brand-surface: var(--brand-surface-primary);
+    --color-brand-primary: var(--brand-primary);
+    --color-brand-surface: var(--brand-surface);
     --color-brand-surface-secondary: var(--brand-surface-secondary);
-    --color-brand-foreground: var(--brand-foreground-primary);
+    --color-brand-foreground: var(--brand-foreground);
     --color-brand-foreground-secondary: var(--brand-foreground-secondary);
     --color-brand-foreground-muted: var(--brand-foreground-muted);
     --color-brand-foreground-inverse: var(--brand-foreground-inverse);
@@ -107,6 +107,16 @@
     --sidebar-accent-foreground: oklch(0.205 0 0);
     --sidebar-border: oklch(0.922 0 0);
     --sidebar-ring: oklch(0.87 0 0);
+
+    /* Brand Fallbacks (Forest Sage) */
+    --brand-primary: #2d5e3a;
+    --brand-surface: #f2f5f3;
+    --brand-surface-secondary: #e5ebe7;
+    --brand-surface-inverse: #1a3621;
+    --brand-foreground: #1a3621;
+    --brand-foreground-secondary: #4a5c50;
+    --brand-foreground-muted: #7a8c80;
+    --brand-foreground-inverse: #ffffff;
 }
 
 .dark {
