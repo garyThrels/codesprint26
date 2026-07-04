@@ -37,6 +37,7 @@ class Campaign extends Model implements HasMedia
         'allow_custom_amount' => 'boolean',
         'expires_at' => 'datetime',
         'goal_amount' => 'integer',
+        'preselected_index' => 'integer',
         'status' => CampaignStatus::class,
     ];
 

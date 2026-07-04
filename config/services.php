@@ -36,6 +36,9 @@ return [
     ],
 
     'mastercard' => [
+        // When true, card payments never touch the network and are authorised
+        // locally. Useful for offline demos or when the sandbox is unavailable.
+        'simulate' => env('MASTERCARD_SIMULATE', false),
         'base_url' => env('MASTERCARD_BASE_URL', 'https://sandbox.api.mastercard.com/donations'),
         'consumer_key' => env('MASTERCARD_CONSUMER_KEY'),
         'client_id' => env('MASTERCARD_CLIENT_ID'),
