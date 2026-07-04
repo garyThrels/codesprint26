@@ -65,7 +65,7 @@ final class DonateClient
             'Authorization' => $authorization,
             'Accept' => 'application/json',
             ...$this->donateHeaders(),
-        ])->contentType('application/json');
+        ])->connectTimeout(5)->timeout(15)->contentType('application/json');
 
         if ($payload !== null) {
             $request = $request->withBody($body, 'application/json');

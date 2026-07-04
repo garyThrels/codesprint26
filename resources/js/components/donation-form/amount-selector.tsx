@@ -39,9 +39,9 @@ export function AmountSelector({
                     {campaign.donation_presets.map((preset, index) => (
                         <button
                             key={index}
-                            onClick={() => onSelectAmount(preset.amount)}
+                            onClick={() => onSelectAmount(Number(preset.amount))}
                             className={`flex h-20 flex-col items-center justify-center rounded-xl transition-all duration-300 ${
-                                selectedAmount === preset.amount
+                                Number(selectedAmount) === Number(preset.amount)
                                     ? 'scale-105 bg-brand-surface-inverse text-brand-foreground-inverse shadow-md'
                                     : 'bg-brand-surface text-brand-foreground shadow-sm hover:scale-[1.02]'
                             }`}

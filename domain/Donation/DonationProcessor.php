@@ -18,7 +18,7 @@ final class DonationProcessor
     {
         // The donation is always made in the campaign's own currency, so we
         // resolve it here rather than trusting whatever the client submitted.
-        $campaign = Campaign::findOrFail($data->campaignId);
+        $campaign = Campaign::with('currency')->findOrFail($data->campaignId);
 
         return DB::transaction(function () use ($data, $campaign) {
             // 1. Create a pending donation record
@@ -32,20 +32,19 @@ final class DonationProcessor
                 'donor_email' => $data->donorEmail,
                 'is_anonymous' => $data->isAnonymous,
                 'is_recurring' => $data->isRecurring,
-                'metadata' => [
-                    'simulated' => true,
-                ],
+                'metadata' => [],
             ]);
 
-            // 2. Process with Mastercard
-            $result = $this->mastercard->process($data);
+            // 2. Process with Mastercard (real signed call for card payments)
+            $result = $this->mastercard->process($data, $campaign->currency?->code ?? 'EUR');
 
-            // 3. Update donation status
+            // 3. Update donation status, keeping the Mastercard response details
             $donation->update([
                 'status' => $result['success'] ? 'success' : 'failed',
                 'mastercard_transaction_id' => $result['transaction_id'],
                 'metadata' => array_merge($donation->metadata ?? [], [
                     'message' => $result['message'],
+                    'mastercard' => $result['meta'],
                 ]),
             ]);
 
