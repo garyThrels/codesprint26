@@ -13,4 +13,4 @@ export interface CardData {
 
 export type DonationStep = 'amount' | 'processing' | 'success' | 'failed';
 
-export type PaymentMethod = 'tap' | 'manual';
+export type PaymentMethod = 'tap' | 'manual' | 'fail';

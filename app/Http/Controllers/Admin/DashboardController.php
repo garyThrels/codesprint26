@@ -13,7 +13,7 @@ class DashboardController extends Controller
     public function index(): Response
     {
         $totalRaised = Donation::where('status', 'success')->sum('amount');
-        $donorCount = Donation::where('status', 'success')->distinct('donor_email')->count('donor_email');
+        $donorCount = Donation::where('status', 'success')->count();
         $totalDonations = Donation::where('status', 'success')->count();
         $averageDonation = $totalDonations > 0 ? $totalRaised / $totalDonations : 0;
 

@@ -95,6 +95,17 @@ export default function DonationForm({
         setIsModalOpen(false);
         setStep('processing');
 
+        if (method === 'fail') {
+            setTimeout(() => {
+                setFailureMessage(
+                    'This is a simulated failure for testing purposes. Your card was not charged.',
+                );
+                setStep('failed');
+            }, 2000);
+
+            return;
+        }
+
         // Card details are only relevant to manual entry; for tap we omit them
         // so the server doesn't validate an empty card object. Currency is
         // resolved server-side from the campaign, so it isn't sent either.

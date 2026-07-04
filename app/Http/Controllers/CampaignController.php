@@ -43,7 +43,7 @@ class CampaignController extends Controller
                 'about_title' => $campaign->about_title,
                 'goal_amount' => $campaign->goal_amount,
                 'raised_amount' => $campaign->donations()->where('status', 'success')->sum('amount'),
-                'donor_count' => $campaign->donations()->where('status', 'success')->distinct('donor_email')->count('donor_email'),
+                'donor_count' => $campaign->donations()->where('status', 'success')->count(),
                 'currency' => $campaign->currency,
                 'donation_presets' => $campaign->donation_presets,
                 'preselected_index' => $campaign->preselected_index,
