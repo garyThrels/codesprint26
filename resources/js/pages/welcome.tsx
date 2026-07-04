@@ -1,4 +1,5 @@
 import { Link } from '@inertiajs/react';
+import AccessibilityMenu from '@/components/accessibility-menu';
 import SEO from '@/components/seo';
 import { Heart, ChevronRight, ShieldCheck } from 'lucide-react';
 import { show as showCampaign } from '@/routes/campaigns';
@@ -127,6 +128,12 @@ export default function Welcome({ campaigns }: { campaigns: Campaign[] }) {
                 title="Every Tap Matters"
                 description="A seamless, secure way to support the causes you love. Direct impact, powered by Mastercard."
             />
+
+            {/* Accessibility control — fixed top-right on desktop; a floating
+                button (portaled from the component) covers mobile. */}
+            <div className="fixed top-4 right-4 z-40 hidden md:block">
+                <AccessibilityMenu />
+            </div>
 
             {/* Premium Hero Section */}
             <section className="relative flex h-[85vh] items-center justify-center overflow-hidden">

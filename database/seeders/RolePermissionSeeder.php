@@ -24,7 +24,10 @@ final class RolePermissionSeeder extends Seeder
         'export ledger',
         'view audit log',
         'manage users',
+        'view campaigns',
         'manage campaigns',
+        'view charities',
+        'manage charities',
     ];
 
     /**
@@ -41,14 +44,17 @@ final class RolePermissionSeeder extends Seeder
             'view dashboard',
             'view ledger',
             'export ledger',
-            'view audit log',
-            'manage users',
+            'view campaigns',
             'manage campaigns',
+            'view charities',
+            'manage charities',
         ],
         'volunteer' => [
             'access admin panel',
             'view dashboard',
             'view ledger',
+            'view campaigns',
+            'view charities',
         ],
         'auditor' => [
             'access admin panel',
@@ -56,6 +62,8 @@ final class RolePermissionSeeder extends Seeder
             'view ledger',
             'export ledger',
             'view audit log',
+            'view campaigns',
+            'view charities',
         ],
     ];
 

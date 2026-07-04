@@ -59,3 +59,27 @@ test('the reconciliation view loads for an admin', function () {
         ->get(route('admin.ledger.reconciliation'))
         ->assertOk();
 });
+
+test('the ledger can be exported to csv', function () {
+    $this->actingAs($this->admin)
+        ->get(route('admin.ledger.export'))
+        ->assertOk()
+        ->assertHeader('Content-Type', 'text/csv; charset=utf-8');
+});
+
+test('exported ledger respects filters', function () {
+    $campaign = Campaign::first();
+    Donation::factory()->for($campaign)->create([
+        'status' => 'failed',
+        'donor_name' => 'Failed Donor',
+    ]);
+
+    $response = $this->actingAs($this->admin)
+        ->get(route('admin.ledger.export', ['status' => 'success']));
+
+    $response->assertOk();
+    $content = $response->streamedContent();
+
+    expect($content)->toContain('Jane Donor')
+        ->not->toContain('Failed Donor');
+});

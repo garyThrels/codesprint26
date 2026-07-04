@@ -1,5 +1,6 @@
 import { Link } from '@inertiajs/react';
 import { ArrowLeft, Share2 } from 'lucide-react';
+import AccessibilityMenu from '@/components/accessibility-menu';
 import { home } from '@/routes';
 import type { CampaignPalette } from '@/lib/colors';
 
@@ -58,21 +59,24 @@ export default function CampaignNavbar({
                     {title}
                 </span>
             </div>
-            <button
-                onClick={onShare}
-                className="flex cursor-pointer items-center gap-2 rounded-lg border px-4 py-1.5 font-inter text-[13px] font-medium transition-all hover:bg-black/5"
-                style={{
-                    borderColor:
-                        palette?.['surface-secondary'] ||
-                        'var(--brand-surface-secondary)',
-                    color:
-                        palette?.['foreground-secondary'] ||
-                        'var(--brand-foreground-secondary)',
-                }}
-            >
-                <Share2 className="h-4 w-4" />
-                Share
-            </button>
+            <div className="flex items-center gap-3">
+                <button
+                    onClick={onShare}
+                    className="flex cursor-pointer items-center gap-2 rounded-lg border px-4 py-1.5 font-inter text-[13px] font-medium transition-all hover:bg-black/5"
+                    style={{
+                        borderColor:
+                            palette?.['surface-secondary'] ||
+                            'var(--brand-surface-secondary)',
+                        color:
+                            palette?.['foreground-secondary'] ||
+                            'var(--brand-foreground-secondary)',
+                    }}
+                >
+                    <Share2 className="h-4 w-4" />
+                    Share
+                </button>
+                <AccessibilityMenu />
+            </div>
         </nav>
     );
 }

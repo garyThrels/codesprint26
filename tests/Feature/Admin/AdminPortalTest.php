@@ -50,10 +50,10 @@ test('staff are redirected to the admin portal after login', function () {
         ->assertRedirect(route('admin.dashboard'));
 });
 
-test('clients are redirected to the client dashboard after login', function () {
+test('clients are redirected to the public home page after login', function () {
     $user = User::factory()->create(['password' => Hash::make('password')]);
     // No special admin role
 
     $this->post('/login', ['email' => $user->email, 'password' => 'password'])
-        ->assertRedirect(route('dashboard'));
+        ->assertRedirect(route('home'));
 });

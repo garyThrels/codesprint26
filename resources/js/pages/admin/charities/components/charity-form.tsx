@@ -158,55 +158,7 @@ export default function CharityForm({ action, initialData }: CharityFormProps) {
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-8 pt-6">
-                        <div className="grid gap-4">
-                            <Label>Color Presets</Label>
-                            <div className="grid gap-4 sm:grid-cols-2">
-                                {COLOR_PRESETS.map((preset) => (
-                                    <button
-                                        key={preset.name}
-                                        type="button"
-                                        onClick={() => {
-                                            setData(
-                                                'brand_color',
-                                                preset.color,
-                                            );
-                                            setData(
-                                                'surface_tint',
-                                                preset.tint,
-                                            );
-                                        }}
-                                        className={cn(
-                                            'flex items-start gap-3 rounded-lg border p-3 text-left transition-all hover:bg-zinc-50 dark:hover:bg-zinc-900',
-                                            data.brand_color === preset.color
-                                                ? 'border-zinc-900 ring-1 ring-zinc-900 dark:border-zinc-100 dark:ring-zinc-100'
-                                                : 'border-zinc-200 dark:border-zinc-800',
-                                        )}
-                                    >
-                                        <div
-                                            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md"
-                                            style={{
-                                                backgroundColor: preset.color,
-                                            }}
-                                        >
-                                            {data.brand_color ===
-                                                preset.color && (
-                                                <Check className="h-5 w-5 text-white" />
-                                            )}
-                                        </div>
-                                        <div>
-                                            <p className="text-sm font-bold">
-                                                {preset.name}
-                                            </p>
-                                            <p className="text-xs leading-tight text-zinc-500">
-                                                {preset.description}
-                                            </p>
-                                        </div>
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
-                        <div className="grid gap-6 border-t pt-6 sm:grid-cols-2">
+                        <div className="grid gap-6 sm:grid-cols-2">
                             <div className="grid gap-2">
                                 <Label htmlFor="brand_color">
                                     Custom Brand Color
@@ -272,6 +224,53 @@ export default function CharityForm({ action, initialData }: CharityFormProps) {
                                     </SelectContent>
                                 </Select>
                                 <InputError message={errors.surface_tint} />
+                            </div>
+                        </div>
+                        <div className="grid gap-4 border-t pt-6">
+                            <Label>Color Presets</Label>
+                            <div className="grid gap-4 sm:grid-cols-2">
+                                {COLOR_PRESETS.map((preset) => (
+                                    <button
+                                        key={preset.name}
+                                        type="button"
+                                        onClick={() => {
+                                            setData(
+                                                'brand_color',
+                                                preset.color,
+                                            );
+                                            setData(
+                                                'surface_tint',
+                                                preset.tint,
+                                            );
+                                        }}
+                                        className={cn(
+                                            'flex items-start gap-3 rounded-lg border p-3 text-left transition-all hover:bg-zinc-50 dark:hover:bg-zinc-900',
+                                            data.brand_color === preset.color
+                                                ? 'border-zinc-900 ring-1 ring-zinc-900 dark:border-zinc-100 dark:ring-zinc-100'
+                                                : 'border-zinc-200 dark:border-zinc-800',
+                                        )}
+                                    >
+                                        <div
+                                            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md"
+                                            style={{
+                                                backgroundColor: preset.color,
+                                            }}
+                                        >
+                                            {data.brand_color ===
+                                                preset.color && (
+                                                <Check className="h-5 w-5 text-white" />
+                                            )}
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-bold">
+                                                {preset.name}
+                                            </p>
+                                            <p className="text-xs leading-tight text-zinc-500">
+                                                {preset.description}
+                                            </p>
+                                        </div>
+                                    </button>
+                                ))}
                             </div>
                         </div>
                     </CardContent>

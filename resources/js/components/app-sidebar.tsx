@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { LayoutGrid, ScrollText, Shield, Building2 } from 'lucide-react';
+import { LayoutGrid, ScrollText, Shield, Building2, Users } from 'lucide-react';
 import { Tag, BookOpen } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
@@ -21,41 +21,51 @@ import { index as auditLogIndex } from '@/routes/admin/audit-log';
 import { index as campaignsIndex } from '@/routes/admin/campaigns';
 import { index as charitiesIndex } from '@/routes/admin/charities';
 import { index as ledgerIndex } from '@/routes/admin/ledger';
+import { index as usersIndex } from '@/routes/admin/users';
 import type { NavItem } from '@/types';
 
 const footerNavItems: NavItem[] = [];
 
 export function AppSidebar() {
-    const { isAdmin, can } = usePermissions();
+    const { can } = usePermissions();
 
     const mainNavItems: NavItem[] = [
         {
             title: 'Dashboard',
-            href: dashboard(),
+            href: adminDashboard(),
             icon: LayoutGrid,
         },
     ];
 
-    if (isAdmin()) {
-        mainNavItems.push({
-            title: 'Admin',
-            href: adminDashboard(),
-            icon: Shield,
-        });
+    if (can('view campaigns')) {
         mainNavItems.push({
             title: 'Campaigns',
             href: campaignsIndex(),
             icon: Tag,
         });
+    }
+
+    if (can('view charities')) {
         mainNavItems.push({
             title: 'Charities',
             href: charitiesIndex(),
             icon: Building2,
         });
+    }
+
+    if (can('view ledger')) {
         mainNavItems.push({
             title: 'Ledger',
             href: ledgerIndex(),
             icon: BookOpen,
+        });
+    }
+
+    if (can('manage users')) {
+        mainNavItems.push({
+            title: 'Users',
+            href: usersIndex(),
+            icon: Users,
         });
     }
 

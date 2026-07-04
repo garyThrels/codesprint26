@@ -1,12 +1,18 @@
 import { useMemo } from 'react';
+import { useAccessibility } from '@/hooks/use-accessibility';
 import { generateCampaignPalette, type CampaignPalette } from '@/lib/colors';
 
 export function useBrandBranding(
     brandHex?: string,
     warmth?: 'warm' | 'cool' | 'neutral',
 ) {
+    const { contrast } = useAccessibility();
+
     return useMemo(() => {
-        if (!brandHex) {
+        // In high-contrast mode we drop the charity palette entirely so that
+        // components fall back to the `--brand-*` CSS variables, which the
+        // high-contrast theme overrides with guaranteed-contrast values.
+        if (!brandHex || contrast === 'high') {
             return {
                 styles: {} as React.CSSProperties,
                 palette: {} as CampaignPalette,
@@ -28,5 +34,5 @@ export function useBrandBranding(
             } as React.CSSProperties,
             palette,
         };
-    }, [brandHex, warmth]);
+    }, [brandHex, warmth, contrast]);
 }

@@ -24,6 +24,7 @@ import {
     create as createCharity,
     edit as editCharity,
 } from '@/routes/admin/charities';
+import { usePermissions } from '@/hooks/use-permissions';
 
 import type { Charity } from '@/types';
 
@@ -32,6 +33,7 @@ export default function CharitiesIndex({
 }: {
     charities: Charity[];
 }) {
+    const { can } = usePermissions();
     return (
         <>
             <Head title="Charity Management" />
@@ -45,14 +47,16 @@ export default function CharitiesIndex({
                             Manage organizations and view their performance.
                         </p>
                     </div>
-                    <Button
-                        asChild
-                        className="bg-zinc-900 dark:bg-zinc-100 dark:text-zinc-900"
-                    >
-                        <Link href={createCharity()}>
-                            <Plus className="mr-2 h-4 w-4" /> New Charity
-                        </Link>
-                    </Button>
+                    {can('manage charities') && (
+                        <Button
+                            asChild
+                            className="bg-zinc-900 dark:bg-zinc-100 dark:text-zinc-900"
+                        >
+                            <Link href={createCharity()}>
+                                <Plus className="mr-2 h-4 w-4" /> New Charity
+                            </Link>
+                        </Button>
+                    )}
                 </div>
 
                 <Card>
@@ -149,15 +153,17 @@ export default function CharitiesIndex({
                                                     </Button>
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end">
-                                                    <DropdownMenuItem asChild>
-                                                        <Link
-                                                            href={editCharity(
-                                                                charity.id,
-                                                            )}
-                                                        >
-                                                            Edit Details
-                                                        </Link>
-                                                    </DropdownMenuItem>
+                                                    {can('manage charities') && (
+                                                        <DropdownMenuItem asChild>
+                                                            <Link
+                                                                href={editCharity(
+                                                                    charity.id,
+                                                                )}
+                                                            >
+                                                                Edit Details
+                                                            </Link>
+                                                        </DropdownMenuItem>
+                                                    )}
                                                     <DropdownMenuItem disabled>
                                                         View Campaigns
                                                     </DropdownMenuItem>

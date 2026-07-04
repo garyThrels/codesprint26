@@ -2,16 +2,14 @@
 
 namespace Domain\Donation\Services;
 
+use Domain\Donation\Mail\DonationReceiptMail;
 use Domain\Donation\Models\Donation;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 final class DonationReceiptService
 {
     /**
      * Send a donation receipt to the donor.
-     *
-     * In a real application, this would use a Mailer or a
-     * specialized receipt generation service.
      */
     public function send(Donation $donation, ?string $email = null): bool
     {
@@ -21,11 +19,8 @@ final class DonationReceiptService
             return false;
         }
 
-        // Simulate receipt generation
-        Log::info("Generating receipt for donation #{$donation->id}...");
-
-        // Simulate email dispatch
-        Log::info("Sending receipt to {$recipient}...");
+        // Send the real mailable
+        Mail::to($recipient)->send(new DonationReceiptMail($donation));
 
         $donation->update([
             'donor_email' => $recipient, // Ensure email is saved if it was missing

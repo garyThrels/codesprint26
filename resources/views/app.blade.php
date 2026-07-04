@@ -16,6 +16,16 @@
                         document.documentElement.classList.add('dark');
                     }
                 }
+
+                // Accessibility preferences (applied before paint to avoid a flash).
+                if ('{{ $contrast ?? "normal" }}' === 'high') {
+                    document.documentElement.classList.add('high-contrast');
+                }
+
+                const fontScale = '{{ $fontScale ?? "normal" }}';
+                if (fontScale !== 'normal') {
+                    document.documentElement.setAttribute('data-font-scale', fontScale);
+                }
             })();
         </script>
 

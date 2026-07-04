@@ -163,3 +163,103 @@
         @apply bg-background text-foreground;
     }
 }
+
+/* --------------------------------------------------------------------------
+ | Accessibility: text-size controls (M1.7)
+ |
+ | The UI is rem/Tailwind based, so scaling the root font size scales spacing
+ | and typography proportionally.
+ -------------------------------------------------------------------------- */
+html[data-font-scale='large'] {
+    font-size: 18px;
+}
+
+html[data-font-scale='x-large'] {
+    font-size: 20px;
+}
+
+/* --------------------------------------------------------------------------
+ | Accessibility: high-contrast colour scheme (M1.7)
+ |
+ | Overrides the design tokens (and the charity `--brand-*` variables, which
+ | `useBrandBranding` falls back to in high-contrast mode) with maximum-contrast
+ | values. Because `@layer base` applies `border-border` to every element, the
+ | black/white `--border` makes all edges clearly visible.
+ -------------------------------------------------------------------------- */
+.high-contrast {
+    --background: #ffffff;
+    --foreground: #000000;
+    --card: #ffffff;
+    --card-foreground: #000000;
+    --popover: #ffffff;
+    --popover-foreground: #000000;
+    --primary: #000000;
+    --primary-foreground: #ffffff;
+    --secondary: #000000;
+    --secondary-foreground: #ffffff;
+    --muted: #ffffff;
+    --muted-foreground: #1a1a1a;
+    --accent: #000000;
+    --accent-foreground: #ffffff;
+    --destructive: #b30000;
+    --destructive-foreground: #ffffff;
+    --border: #000000;
+    --input: #000000;
+    --ring: #000000;
+
+    --sidebar: #ffffff;
+    --sidebar-foreground: #000000;
+    --sidebar-border: #000000;
+
+    /* Neutralise charity branding for guaranteed contrast. */
+    --brand-primary: #000000;
+    --brand-surface: #ffffff;
+    --brand-surface-secondary: #ffffff;
+    --brand-surface-inverse: #000000;
+    --brand-foreground: #000000;
+    --brand-foreground-secondary: #000000;
+    --brand-foreground-muted: #1a1a1a;
+    --brand-foreground-inverse: #ffffff;
+}
+
+.high-contrast.dark {
+    --background: #000000;
+    --foreground: #ffffff;
+    --card: #000000;
+    --card-foreground: #ffffff;
+    --popover: #000000;
+    --popover-foreground: #ffffff;
+    --primary: #ffffff;
+    --primary-foreground: #000000;
+    --secondary: #ffffff;
+    --secondary-foreground: #000000;
+    --muted: #000000;
+    --muted-foreground: #e6e6e6;
+    --accent: #ffffff;
+    --accent-foreground: #000000;
+    --destructive: #ff6b6b;
+    --destructive-foreground: #000000;
+    --border: #ffffff;
+    --input: #ffffff;
+    --ring: #ffffff;
+
+    --sidebar: #000000;
+    --sidebar-foreground: #ffffff;
+    --sidebar-border: #ffffff;
+
+    --brand-primary: #ffffff;
+    --brand-surface: #000000;
+    --brand-surface-secondary: #000000;
+    --brand-surface-inverse: #ffffff;
+    --brand-foreground: #ffffff;
+    --brand-foreground-secondary: #ffffff;
+    --brand-foreground-muted: #e6e6e6;
+    --brand-foreground-inverse: #000000;
+}
+
+/* Stronger, always-visible focus ring in high-contrast mode. */
+.high-contrast :focus-visible {
+    outline: 3px solid var(--ring);
+    outline-offset: 2px;
+}
+

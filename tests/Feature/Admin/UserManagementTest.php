@@ -17,7 +17,7 @@ test('admin can see user listing', function () {
         ->get(route('admin.users.index'))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
-            ->component('Admin/users/index')
+            ->component('admin/users/index')
             ->has('users', 4) // Admin + 3 users
         );
 });

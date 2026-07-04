@@ -17,6 +17,8 @@ final class HandleAppearance
     public function handle(Request $request, Closure $next): Response
     {
         View::share('appearance', $request->cookie('appearance') ?? 'system');
+        View::share('contrast', $request->cookie('contrast') ?? 'normal');
+        View::share('fontScale', $request->cookie('font_scale') ?? 'normal');
 
         return $next($request);
     }

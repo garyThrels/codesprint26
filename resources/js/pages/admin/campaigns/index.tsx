@@ -24,6 +24,7 @@ import {
     edit,
     destroy,
 } from '@/routes/admin/campaigns';
+import { usePermissions } from '@/hooks/use-permissions';
 import type { Campaign } from '@/types';
 
 export default function CampaignsIndex({
@@ -31,6 +32,7 @@ export default function CampaignsIndex({
 }: {
     campaigns: Campaign[];
 }) {
+    const { can } = usePermissions();
     const deleteCampaign = (id: number) => {
         if (
             confirm(
@@ -54,14 +56,16 @@ export default function CampaignsIndex({
                             Create and manage your fundraising campaigns.
                         </p>
                     </div>
-                    <Button
-                        asChild
-                        className="bg-zinc-900 dark:bg-zinc-100 dark:text-zinc-900"
-                    >
-                        <Link href={create()}>
-                            <Plus className="mr-2 h-4 w-4" /> New Campaign
-                        </Link>
-                    </Button>
+                    {can('manage campaigns') && (
+                        <Button
+                            asChild
+                            className="bg-zinc-900 dark:bg-zinc-100 dark:text-zinc-900"
+                        >
+                            <Link href={create()}>
+                                <Plus className="mr-2 h-4 w-4" /> New Campaign
+                            </Link>
+                        </Button>
+                    )}
                 </div>
 
                 <Card>
@@ -120,27 +124,31 @@ export default function CampaignsIndex({
                                                     </Button>
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end">
-                                                    <DropdownMenuItem asChild>
-                                                        <Link
-                                                            href={edit(
-                                                                campaign.id,
-                                                            )}
-                                                        >
-                                                            <Edit className="mr-2 h-4 w-4" />{' '}
-                                                            Edit
-                                                        </Link>
-                                                    </DropdownMenuItem>
-                                                    <DropdownMenuItem
-                                                        className="text-red-600 focus:text-red-600"
-                                                        onClick={() =>
-                                                            deleteCampaign(
-                                                                campaign.id,
-                                                            )
-                                                        }
-                                                    >
-                                                        <Trash2 className="mr-2 h-4 w-4" />{' '}
-                                                        Delete
-                                                    </DropdownMenuItem>
+                                                    {can('manage campaigns') && (
+                                                        <>
+                                                            <DropdownMenuItem asChild>
+                                                                <Link
+                                                                    href={edit(
+                                                                        campaign.id,
+                                                                    )}
+                                                                >
+                                                                    <Edit className="mr-2 h-4 w-4" />{' '}
+                                                                    Edit
+                                                                </Link>
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuItem
+                                                                className="text-red-600 focus:text-red-600"
+                                                                onClick={() =>
+                                                                    deleteCampaign(
+                                                                        campaign.id,
+                                                                    )
+                                                                }
+                                                            >
+                                                                <Trash2 className="mr-2 h-4 w-4" />{' '}
+                                                                Delete
+                                                            </DropdownMenuItem>
+                                                        </>
+                                                    )}
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
                                         </TableCell>

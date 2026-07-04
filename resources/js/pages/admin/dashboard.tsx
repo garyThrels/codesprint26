@@ -62,7 +62,13 @@ export default function AdminDashboard({
     campaigns,
     recentDonations,
 }: {
-    stats: { totalRaised: number; donorCount: number; averageDonation: number };
+    stats: {
+        totalRaised: number;
+        totalDonations: number;
+        uniqueNamedDonors: number;
+        anonymousDonors: number;
+        averageDonation: number;
+    };
     campaigns: any[];
     recentDonations: any[];
 }) {
@@ -72,7 +78,7 @@ export default function AdminDashboard({
 
     return (
         <>
-            <Head title="Admin Dashboard" />
+            <Head title="Dashboard" />
             <div className="flex h-full flex-1 flex-col gap-6 p-6">
                 <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
                     <div>
@@ -94,7 +100,7 @@ export default function AdminDashboard({
                     </div>
                 </div>
 
-                <div className="grid gap-4 md:grid-cols-3">
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
                     <StatCard
                         title="Total Raised"
                         value={`€${stats.totalRaised.toLocaleString()}`}
@@ -103,11 +109,23 @@ export default function AdminDashboard({
                         trend="up"
                     />
                     <StatCard
-                        title="Total Donors"
-                        value={stats.donorCount}
-                        icon={<Users className="h-4 w-4" />}
-                        description="+5% from last week"
+                        title="Total Donations"
+                        value={stats.totalDonations}
+                        icon={<Heart className="h-4 w-4" />}
+                        description="+8% from last week"
                         trend="up"
+                    />
+                    <StatCard
+                        title="Unique Donors"
+                        value={stats.uniqueNamedDonors}
+                        icon={<Users className="h-4 w-4" />}
+                        description="Named donors"
+                    />
+                    <StatCard
+                        title="Anonymous"
+                        value={stats.anonymousDonors}
+                        icon={<Users className="h-4 w-4 opacity-50" />}
+                        description="Incognito"
                     />
                     <StatCard
                         title="Avg. Donation"
