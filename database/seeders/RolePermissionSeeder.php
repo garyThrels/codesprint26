@@ -24,6 +24,7 @@ final class RolePermissionSeeder extends Seeder
         'export ledger',
         'view audit log',
         'manage users',
+        'manage campaigns',
     ];
 
     /**
@@ -35,26 +36,27 @@ final class RolePermissionSeeder extends Seeder
      * @var array<string, list<string>>
      */
     private const array ROLES = [
-        'admin' => [
+        'charity-admin' => [
             'access admin panel',
             'view dashboard',
             'view ledger',
             'export ledger',
             'view audit log',
             'manage users',
+            'manage campaigns',
         ],
-        'manager' => [
+        'volunteer' => [
+            'access admin panel',
+            'view dashboard',
+            'view ledger',
+        ],
+        'auditor' => [
             'access admin panel',
             'view dashboard',
             'view ledger',
             'export ledger',
+            'view audit log',
         ],
-        'viewer' => [
-            'access admin panel',
-            'view dashboard',
-            'view ledger',
-        ],
-        'donor' => [],
     ];
 
     public function run(): void

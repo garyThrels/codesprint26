@@ -1,0 +1,39 @@
+<?php
+
+namespace Domain\Charity\Models;
+
+use Domain\Campaign\Models\Campaign;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+
+class Charity extends Model implements HasMedia
+{
+    use HasFactory;
+    use InteractsWithMedia;
+
+    protected $fillable = [
+        'name',
+        'slogan',
+        'brand_color',
+        'surface_tint',
+        'description',
+    ];
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('logo')
+            ->singleFile()
+            ->useFallbackUrl('/images/placeholder-logo.png');
+    }
+
+    /**
+     * @return HasMany<Campaign, $this>
+     */
+    public function campaigns(): HasMany
+    {
+        return $this->hasMany(Campaign::class);
+    }
+}
