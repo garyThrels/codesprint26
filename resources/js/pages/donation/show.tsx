@@ -1,4 +1,4 @@
-import { Head } from '@inertiajs/react';
+import SEO from '@/components/seo';
 import { useMemo } from 'react';
 import CampaignNavbar from '@/components/campaign-navbar';
 import CampaignProgress from '@/components/campaign-progress';
@@ -40,7 +40,11 @@ export default function CampaignShow({
 
     return (
         <div className="min-h-screen bg-brand-surface" style={brandingStyles}>
-            <Head title={campaign.name} />
+            <SEO 
+                title={campaign.name}
+                description={campaign.tagline}
+                image={campaign.hero_url}
+            />
 
             <CampaignNavbar title={`${campaign.name} - ${charity.name}`} />
 
@@ -59,7 +63,7 @@ export default function CampaignShow({
                             <div
                                 className="absolute inset-0"
                                 style={{
-                                    background: `linear-gradient(to top, var(--brand-surface-inverse)E0 0%, transparent 70%)`,
+                                    background: `linear-gradient(to top, color-mix(in srgb, var(--brand-surface-inverse), transparent 12%) 0%, transparent 70%)`,
                                 }}
                             />
 

@@ -1,4 +1,5 @@
-import { Head, Link } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
+import SEO from '@/components/seo';
 import { Heart, ChevronRight, ShieldCheck } from 'lucide-react';
 import { show as showCampaign } from '@/routes/campaigns';
 
@@ -87,7 +88,10 @@ function CampaignCard({ campaign }: { campaign: Campaign }) {
 export default function Welcome({ campaigns }: { campaigns: Campaign[] }) {
     return (
         <div className="min-h-screen bg-[#F9F9F8] font-inter">
-            <Head title="Tap For Good - Every Tap Matters" />
+            <SEO
+                title="Every Tap Matters"
+                description="A seamless, secure way to support the causes you love. Direct impact, powered by Mastercard."
+            />
 
             {/* Premium Hero Section */}
             <section className="relative flex h-[85vh] items-center justify-center overflow-hidden">
