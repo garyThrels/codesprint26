@@ -37,10 +37,9 @@ export default function DonationForm({
         initialAmount ? Math.round(initialAmount) : null,
     );
 
-    const { data, setData, post } = useForm({
+    const { data, setData, post, transform } = useForm({
         campaignId: campaign.id,
         amount: 0,
-        currencyId: campaign.currency_id,
         paymentMethod: 'tap',
         card: {
             cardNumber: '',
@@ -95,6 +94,14 @@ export default function DonationForm({
         setData('paymentMethod', method);
         setIsModalOpen(false);
         setStep('processing');
+
+        // Card details are only relevant to manual entry; for tap we omit them
+        // so the server doesn't validate an empty card object. Currency is
+        // resolved server-side from the campaign, so it isn't sent either.
+        transform((formData) => ({
+            ...formData,
+            card: method === 'manual' ? formData.card : null,
+        }));
 
         setTimeout(() => {
             post(storeDonation.url(), {

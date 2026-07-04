@@ -55,7 +55,7 @@ export function DonationStatus({
                 )}
             </div>
             <div>
-                <h3 className="font-playfair text-3xl font-bold text-brand-foreground">
+                <h3 className="mb-2 font-playfair text-3xl font-bold text-brand-foreground">
                     {isSuccess ? 'Thank You!' : 'Donation Failed'}
                 </h3>
                 <p className="mx-auto mb-8 max-w-xs font-inter text-sm font-medium text-brand-foreground-secondary">

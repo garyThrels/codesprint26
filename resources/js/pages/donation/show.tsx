@@ -4,6 +4,9 @@ import CampaignNavbar from '@/components/campaign-navbar';
 import CampaignProgress from '@/components/campaign-progress';
 import DonationForm from '@/components/donation-form';
 import { useBrandBranding } from '@/hooks/use-brand-branding';
+import { useState } from 'react';
+import ShareModal from '@/components/share-modal';
+import { Share2 } from 'lucide-react';
 
 import type { Campaign, Charity } from '@/types';
 
@@ -18,6 +21,8 @@ export default function CampaignShow({
         charity.brand_color,
         charity.surface_tint,
     );
+
+    const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
     const progress = useMemo(() => {
         if (campaign.goal_amount <= 0) {
@@ -46,7 +51,10 @@ export default function CampaignShow({
                 image={campaign.hero_url}
             />
 
-            <CampaignNavbar title={`${campaign.name} - ${charity.name}`} />
+            <CampaignNavbar 
+                title={`${campaign.name} - ${charity.name}`} 
+                onShare={() => setIsShareModalOpen(true)}
+            />
 
             <main className="mx-auto max-w-[1280px] p-4 md:px-10 md:py-8">
                 <div className="flex flex-col gap-8 md:flex-row">
@@ -78,9 +86,17 @@ export default function CampaignShow({
                                     </div>
                                 )}
                                 <div>
-                                    <h1 className="font-playfair text-2xl font-bold text-white md:text-4xl">
-                                        {campaign.name}
-                                    </h1>
+                                    <div className="flex items-start justify-between gap-4">
+                                        <h1 className="font-playfair text-2xl font-bold text-white md:text-4xl">
+                                            {campaign.name}
+                                        </h1>
+                                        <button 
+                                            onClick={() => setIsShareModalOpen(true)}
+                                            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-md transition-all hover:bg-white/30 md:hidden"
+                                        >
+                                            <Share2 className="h-5 w-5" />
+                                        </button>
+                                    </div>
                                     <p className="font-inter text-sm text-white/85 md:text-base">
                                         {campaign.tagline}
                                     </p>
@@ -167,6 +183,13 @@ export default function CampaignShow({
                     </aside>
                 </div>
             </main>
+
+            <ShareModal
+                isOpen={isShareModalOpen}
+                onClose={() => setIsShareModalOpen(false)}
+                url={typeof window !== 'undefined' ? window.location.href : ''}
+                title={campaign.name}
+            />
         </div>
     );
 }

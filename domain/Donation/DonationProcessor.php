@@ -2,6 +2,7 @@
 
 namespace Domain\Donation;
 
+use Domain\Campaign\Models\Campaign;
 use Domain\Donation\Data\DonationRequestData;
 use Domain\Donation\Models\Donation;
 use Domain\Mastercard\Services\MastercardService;
@@ -15,12 +16,16 @@ final class DonationProcessor
 
     public function execute(DonationRequestData $data): Donation
     {
-        return DB::transaction(function () use ($data) {
+        // The donation is always made in the campaign's own currency, so we
+        // resolve it here rather than trusting whatever the client submitted.
+        $campaign = Campaign::findOrFail($data->campaignId);
+
+        return DB::transaction(function () use ($data, $campaign) {
             // 1. Create a pending donation record
             $donation = Donation::create([
-                'campaign_id' => $data->campaignId,
+                'campaign_id' => $campaign->id,
                 'amount' => $data->amount,
-                'currency_id' => $data->currencyId,
+                'currency_id' => $campaign->currency_id,
                 'status' => 'pending',
                 'payment_method' => $data->paymentMethod,
                 'donor_name' => $data->isAnonymous ? null : $data->donorName,

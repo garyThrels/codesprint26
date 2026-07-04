@@ -61,6 +61,28 @@ test('a declined manual payment is marked as failed and flashes an error', funct
     expect($donation->status->value)->toBe('failed');
 });
 
+test('a tap donation succeeds without a currency or card in the payload', function () {
+    // Mirrors the real tap-to-pay request: the client sends neither a currency
+    // (derived from the campaign) nor card details.
+    $currency = Currency::factory()->create();
+    $campaign = Campaign::factory()->create(['currency_id' => $currency->id]);
+
+    $response = $this->post(route('donations.store'), [
+        'campaignId' => $campaign->id,
+        'amount' => 1500,
+        'paymentMethod' => 'tap',
+    ]);
+
+    $response->assertRedirect();
+    $response->assertSessionHasNoErrors();
+    $response->assertSessionHas('success');
+    $response->assertSessionMissing('error');
+
+    $donation = Donation::first();
+    expect($donation->status->value)->toBe('success')
+        ->and($donation->currency_id)->toBe($campaign->currency_id);
+});
+
 test('a donation is marked as successful when using tap', function () {
     $currency = Currency::factory()->create();
     $campaign = Campaign::factory()->create(['currency_id' => $currency->id]);
