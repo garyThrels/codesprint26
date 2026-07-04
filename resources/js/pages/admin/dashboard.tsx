@@ -1,4 +1,5 @@
-import { Head } from '@inertiajs/react';
+import { Head, router, usePoll } from '@inertiajs/react';
+import { useEffect, useState } from 'react';
 import { usePermissions } from '@/hooks/use-permissions';
 import { dashboard as adminDashboard } from '@/routes/admin';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -21,6 +22,9 @@ import {
     Clock,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+
+// Dashboard props refreshed by the live poll — a partial reload keeps it cheap.
+const LIVE_PROPS = ['stats', 'campaigns', 'recentDonations'];
 
 interface StatCardProps {
     title: string;
@@ -74,6 +78,28 @@ export default function AdminDashboard({
 }) {
     const { roles } = usePermissions();
 
+    const [lastUpdated, setLastUpdated] = useState<Date>(() => new Date());
+
+    // Live dashboard: poll every 20s (usePoll throttles automatically while the
+    // tab is inactive), and re-poll immediately whenever the window regains
+    // focus. Partial reload — only the dashboard data props are re-fetched.
+    usePoll(10000, {
+        only: LIVE_PROPS,
+        onFinish: () => setLastUpdated(new Date()),
+    });
+
+    useEffect(() => {
+        const refreshOnFocus = () =>
+            router.reload({
+                only: LIVE_PROPS,
+                onFinish: () => setLastUpdated(new Date()),
+            });
+
+        window.addEventListener('focus', refreshOnFocus);
+
+        return () => window.removeEventListener('focus', refreshOnFocus);
+    }, []);
+
     const COLORS = ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6'];
 
     return (
@@ -90,7 +116,17 @@ export default function AdminDashboard({
                             campaigns today.
                         </p>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex items-center gap-3">
+                        <span
+                            className="flex items-center gap-2 text-xs font-medium text-zinc-500"
+                            title="Auto-updates every 20 seconds and when you return to this tab"
+                        >
+                            <span className="relative flex h-2 w-2">
+                                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-500 opacity-75" />
+                                <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500" />
+                            </span>
+                            Live · {lastUpdated.toLocaleTimeString()}
+                        </span>
                         <Badge
                             variant="outline"
                             className="bg-zinc-100 px-3 py-1 dark:bg-zinc-800"
