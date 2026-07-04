@@ -40,6 +40,11 @@ class Charity extends Model implements HasMedia
         return $this->hasMany(Campaign::class);
     }
 
+    public function currencies(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(\Domain\Currency\Models\Currency::class, 'charity_currency');
+    }
+
     /**
      * @return HasManyThrough<Donation, Campaign, $this>
      */

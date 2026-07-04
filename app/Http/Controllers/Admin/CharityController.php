@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Domain\Charity\Models\Charity;
+use Domain\Currency\Models\Currency;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -26,7 +27,8 @@ class CharityController extends Controller
         ])
             ->withSum(['donations as total_gathered' => function ($query) {
                 $query->where('donations.status', 'success');
-            }], 'amount')
+            }], 'amount_in_base_currency')
+            ->with('currencies')
             ->get();
 
         return Inertia::render('admin/charities/index', [
@@ -40,7 +42,9 @@ class CharityController extends Controller
 
     public function create(): Response
     {
-        return Inertia::render('admin/charities/create');
+        return Inertia::render('admin/charities/create', [
+            'currencies' => Currency::where('is_active', true)->get(),
+        ]);
     }
 
     public function store(Request $request): RedirectResponse
@@ -52,9 +56,12 @@ class CharityController extends Controller
             'brand_color' => 'required|string|max:7',
             'surface_tint' => 'required|string|in:warm,cool,neutral',
             'logo' => 'nullable|image|max:2048',
+            'currency_ids' => 'required|array|min:1',
+            'currency_ids.*' => 'exists:currencies,id',
         ]);
 
         $charity = Charity::create($validated);
+        $charity->currencies()->sync($request->input('currency_ids'));
 
         if ($request->hasFile('logo')) {
             $charity->addMediaFromRequest('logo')->toMediaCollection('logo');
@@ -65,10 +72,14 @@ class CharityController extends Controller
 
     public function edit(Charity $charity): Response
     {
+        $charity->load('currencies');
+
         return Inertia::render('admin/charities/edit', [
             'charity' => array_merge($charity->toArray(), [
                 'logo_url' => $charity->getFirstMediaUrl('logo'),
+                'currency_ids' => $charity->currencies->pluck('id')->toArray(),
             ]),
+            'currencies' => Currency::where('is_active', true)->get(),
         ]);
     }
 
@@ -82,9 +93,12 @@ class CharityController extends Controller
             'surface_tint' => 'required|string|in:warm,cool,neutral',
             'logo' => 'nullable|image|max:2048',
             'logo_url' => 'nullable|string',
+            'currency_ids' => 'required|array|min:1',
+            'currency_ids.*' => 'exists:currencies,id',
         ]);
 
         $charity->update($validated);
+        $charity->currencies()->sync($request->input('currency_ids'));
 
         if ($request->has('logo_url') && $request->input('logo_url') === null) {
             $charity->clearMediaCollection('logo');

@@ -4,7 +4,9 @@ import CharityController from '@/actions/App/Http/Controllers/Admin/CharityContr
 import { dashboard as adminDashboard } from '@/routes/admin';
 import { index as charitiesIndex } from '@/routes/admin/charities';
 
-export default function Create() {
+import type { Currency } from '@/types/currency';
+
+export default function Create({ currencies }: { currencies: Currency[] }) {
     return (
         <>
             <Head title="New Charity" />
@@ -18,7 +20,10 @@ export default function Create() {
                     </p>
                 </div>
 
-                <CharityForm action={CharityController.store.form()} />
+                <CharityForm
+                    action={CharityController.store.form()}
+                    currencies={currencies}
+                />
             </div>
         </>
     );

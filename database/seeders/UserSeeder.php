@@ -17,6 +17,9 @@ final class UserSeeder extends Seeder
             ]
         );
 
-        $admin->assignRole('charity-admin');
+        // The primary admin account is the super-admin (full access; bypasses
+        // individual permission checks via the Gate::before hook). Per-tier demo
+        // accounts (charity-admin, volunteer, auditor) exist separately.
+        $admin->syncRoles(['super-admin']);
     }
 }

@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use Laravel\Fortify\Contracts\LoginResponse as LoginResponseContract;
 
 /**
- * Sends staff to the admin portal and everyone else to the client area
+ * Sends staff to the admin portal and everyone else to the public home page
  * after a successful login.
  */
 final class LoginResponse implements LoginResponseContract
@@ -26,6 +26,6 @@ final class LoginResponse implements LoginResponseContract
     {
         return $request->user()?->can('access admin panel')
             ? route('admin.dashboard')
-            : route('dashboard');
+            : route('home');
     }
 }

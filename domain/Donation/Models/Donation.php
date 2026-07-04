@@ -17,6 +17,7 @@ class Donation extends Model
     protected $fillable = [
         'campaign_id',
         'amount',
+        'amount_in_base_currency',
         'currency_id',
         'status',
         'payment_method',
@@ -65,6 +66,7 @@ class Donation extends Model
     {
         return [
             'amount' => 'integer',
+            'amount_in_base_currency' => 'integer',
             'status' => DonationStatus::class,
             'is_anonymous' => 'boolean',
             'is_recurring' => 'boolean',

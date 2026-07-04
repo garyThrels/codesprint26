@@ -1,7 +1,6 @@
 import { Accessibility, Contrast, RotateCcw } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import AppearanceTabs from '@/components/appearance-tabs';
 import { useAccessibility } from '@/hooks/use-accessibility';
 import type { FontScale } from '@/hooks/use-accessibility';
 import { cn } from '@/lib/utils';
@@ -161,14 +160,6 @@ export default function AccessibilityMenu({
                                         {contrast === 'high' ? 'On' : 'Off'}
                                     </span>
                                 </button>
-                            </div>
-
-                            {/* Theme */}
-                            <div className="space-y-2">
-                                <span className="text-xs font-medium text-muted-foreground">
-                                    Theme
-                                </span>
-                                <AppearanceTabs className="w-full justify-between" />
                             </div>
                         </div>
                     </>,

@@ -15,7 +15,6 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { usePermissions } from '@/hooks/use-permissions';
-import { dashboard } from '@/routes';
 import { dashboard as adminDashboard } from '@/routes/admin';
 import { index as auditLogIndex } from '@/routes/admin/audit-log';
 import { index as campaignsIndex } from '@/routes/admin/campaigns';
@@ -83,7 +82,7 @@ export function AppSidebar() {
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton size="lg" asChild>
-                            <Link href={dashboard()} prefetch>
+                            <Link href={adminDashboard()} prefetch>
                                 <AppLogo />
                             </Link>
                         </SidebarMenuButton>

@@ -5,8 +5,15 @@ import { dashboard as adminDashboard } from '@/routes/admin';
 import { index as charitiesIndex } from '@/routes/admin/charities';
 
 import type { Charity } from '@/types';
+import type { Currency } from '@/types/currency';
 
-export default function Edit({ charity }: { charity: Charity }) {
+export default function Edit({
+    charity,
+    currencies,
+}: {
+    charity: Charity;
+    currencies: Currency[];
+}) {
     return (
         <>
             <Head title={`Edit ${charity.name}`} />
@@ -23,6 +30,7 @@ export default function Edit({ charity }: { charity: Charity }) {
                 <CharityForm
                     action={CharityController.update.form(charity.id)}
                     initialData={charity}
+                    currencies={currencies}
                 />
             </div>
         </>

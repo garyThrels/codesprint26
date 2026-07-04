@@ -22,6 +22,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
+import type { Currency } from '@/types/currency';
 
 import type { Charity } from '@/types';
 
@@ -64,16 +66,20 @@ const COLOR_PRESETS: ColorPreset[] = [
         description: 'Medical, heart health, blood donation, children',
     },
 ];
-
 interface CharityFormProps {
     action: {
         action: string;
-        method: 'post' | 'put' | 'patch';
+        method: string;
     };
     initialData?: Partial<Charity>;
+    currencies?: Currency[];
 }
 
-export default function CharityForm({ action, initialData }: CharityFormProps) {
+export default function CharityForm({
+    action,
+    initialData,
+    currencies = [],
+}: CharityFormProps) {
     const defaults = {
         name: initialData?.name || '',
         slogan: initialData?.slogan || '',
@@ -82,6 +88,7 @@ export default function CharityForm({ action, initialData }: CharityFormProps) {
         surface_tint: initialData?.surface_tint || 'neutral',
         logo: null as File | null,
         logo_url: initialData?.logo_url || null,
+        currency_ids: (initialData?.currency_ids || []) as number[],
     };
 
     const { data, setData, post, put, processing, errors } = useForm(defaults);
@@ -273,6 +280,61 @@ export default function CharityForm({ action, initialData }: CharityFormProps) {
                                 ))}
                             </div>
                         </div>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Supported Currencies</CardTitle>
+                        <CardDescription>
+                            Select the currencies this charity can accept.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="pt-6">
+                        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                            {currencies.map((currency) => (
+                                <div
+                                    key={currency.id}
+                                    className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4"
+                                >
+                                    <Checkbox
+                                        id={`currency-${currency.id}`}
+                                        checked={data.currency_ids.includes(
+                                            currency.id,
+                                        )}
+                                        onCheckedChange={(checked) => {
+                                            const newIds = checked
+                                                ? [
+                                                      ...data.currency_ids,
+                                                      currency.id,
+                                                  ]
+                                                : data.currency_ids.filter(
+                                                      (id) =>
+                                                          id !== currency.id,
+                                                  );
+                                            setData('currency_ids', newIds);
+                                        }}
+                                    />
+                                    <div className="grid gap-1.5 leading-none">
+                                        <Label
+                                            htmlFor={`currency-${currency.id}`}
+                                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                        >
+                                            {currency.name} ({currency.code})
+                                        </Label>
+                                        <p className="text-xs text-muted-foreground">
+                                            Symbol: {currency.symbol}
+                                        </p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                        <InputError message={errors.currency_ids} />
+                        {data.currency_ids.length === 0 && (
+                            <p className="mt-2 text-xs text-red-500">
+                                Please select at least one currency.
+                            </p>
+                        )}
                     </CardContent>
                 </Card>
             </div>

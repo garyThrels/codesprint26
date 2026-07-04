@@ -9,8 +9,10 @@ beforeEach(function () {
 
 function adminUser(): User
 {
+    // Audit-log access is reserved for super-admin (and auditor); charity-admin
+    // is intentionally restricted from it (see RoleAccessTest).
     $admin = User::factory()->create();
-    $admin->assignRole('charity-admin');
+    $admin->assignRole('super-admin');
 
     return $admin;
 }

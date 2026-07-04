@@ -39,6 +39,9 @@ final class RolePermissionSeeder extends Seeder
      * @var array<string, list<string>>
      */
     private const array ROLES = [
+        // Charity Admin manages campaigns/charities/ledger but NOT users or the
+        // audit log — those are reserved for super-admin (users) and
+        // super-admin/auditor (audit log). See RoleAccessTest.
         'charity-admin' => [
             'access admin panel',
             'view dashboard',

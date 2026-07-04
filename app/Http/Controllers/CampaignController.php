@@ -32,7 +32,14 @@ class CampaignController extends Controller
 
     public function show(Campaign $campaign): Response
     {
-        $campaign->load(['charity', 'currency']);
+        $campaign->load(['charity.currencies', 'currency']);
+
+        $totalRaisedInBaseCurrency = $campaign->donations()
+            ->where('status', 'success')
+            ->sum('amount_in_base_currency');
+
+        // Convert total raised back to campaign currency for the progress display
+        $raisedAmountInCampaignCurrency = (int) round($totalRaisedInBaseCurrency / $campaign->currency->exchange_rate);
 
         return Inertia::render('donation/show', [
             'campaign' => [
@@ -42,7 +49,7 @@ class CampaignController extends Controller
                 'description_html' => $campaign->description_html,
                 'about_title' => $campaign->about_title,
                 'goal_amount' => $campaign->goal_amount,
-                'raised_amount' => $campaign->donations()->where('status', 'success')->sum('amount'),
+                'raised_amount' => $raisedAmountInCampaignCurrency,
                 'donor_count' => $campaign->donations()->where('status', 'success')->count(),
                 'currency' => $campaign->currency,
                 'donation_presets' => $campaign->donation_presets,
@@ -57,6 +64,7 @@ class CampaignController extends Controller
                 'brand_color' => $campaign->charity->brand_color,
                 'surface_tint' => $campaign->charity->surface_tint,
                 'logo_url' => $campaign->charity->getFirstMediaUrl('logo'),
+                'supported_currencies' => $campaign->charity->currencies,
             ],
         ]);
     }

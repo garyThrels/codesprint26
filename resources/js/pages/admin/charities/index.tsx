@@ -71,6 +71,9 @@ export default function CharitiesIndex({
                                     <TableHead className="text-center">
                                         Brand
                                     </TableHead>
+                                    <TableHead className="text-center">
+                                        Currencies
+                                    </TableHead>
                                     <TableHead className="text-right">
                                         Total Gathered
                                     </TableHead>
@@ -133,8 +136,23 @@ export default function CharitiesIndex({
                                                 {charity.surface_tint}
                                             </span>
                                         </TableCell>
+                                        <TableCell className="text-center">
+                                            <div className="flex flex-wrap justify-center gap-1">
+                                                {charity.currencies?.map(
+                                                    (c) => (
+                                                        <Badge
+                                                            key={c.id}
+                                                            variant="outline"
+                                                            className="text-[10px]"
+                                                        >
+                                                            {c.code}
+                                                        </Badge>
+                                                    ),
+                                                )}
+                                            </div>
+                                        </TableCell>
                                         <TableCell className="text-right font-mono font-bold">
-                                            $
+                                            €
                                             {(
                                                 (charity.total_gathered || 0) /
                                                 100

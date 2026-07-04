@@ -5,7 +5,10 @@ export interface Charity {
     description: string;
     brand_color: string;
     surface_tint: 'warm' | 'cool' | 'neutral';
-    logo_url: string;
+    logo_url?: string;
+    currency_ids?: number[];
+    currencies?: import('./currency').Currency[];
+    supported_currencies?: import('./currency').Currency[];
     active_campaigns_count?: number;
     paused_campaigns_count?: number;
     completed_campaigns_count?: number;

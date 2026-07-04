@@ -8,25 +8,39 @@ import {
     CardTitle,
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import type { Campaign } from './types';
+import type { Campaign, Charity } from './types';
 import type { CampaignPalette } from '@/lib/colors';
+import type { Currency } from '@/types/currency';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 
 interface AmountSelectorProps {
     campaign: Campaign;
+    charity: Charity;
     selectedAmount: number | null;
     customAmount: string;
+    selectedCurrency: Currency;
     onSelectAmount: (amount: number) => void;
     onCustomAmountChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    onCurrencyChange: (currency: Currency) => void;
     onDonate: () => void;
     palette?: CampaignPalette;
 }
 
 export function AmountSelector({
     campaign,
+    charity,
     selectedAmount,
     customAmount,
+    selectedCurrency,
     onSelectAmount,
     onCustomAmountChange,
+    onCurrencyChange,
     onDonate,
     palette,
 }: AmountSelectorProps) {
@@ -50,6 +64,45 @@ export function AmountSelector({
                 >
                     Choose Your Donation
                 </CardTitle>
+                {charity.supported_currencies &&
+                    charity.supported_currencies.length > 1 && (
+                        <div className="mt-2">
+                            <Select
+                                value={selectedCurrency.id.toString()}
+                                onValueChange={(value) => {
+                                    const currency =
+                                        charity.supported_currencies?.find(
+                                            (c) => c.id.toString() === value,
+                                        );
+                                    if (currency) onCurrencyChange(currency);
+                                }}
+                            >
+                                <SelectTrigger
+                                    className="h-9 w-[120px] border-none shadow-sm"
+                                    style={{
+                                        backgroundColor:
+                                            palette?.['surface-primary'] ||
+                                            'white',
+                                        color:
+                                            palette?.['foreground-primary'] ||
+                                            'black',
+                                    }}
+                                >
+                                    <SelectValue placeholder="Currency" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {charity.supported_currencies.map((c) => (
+                                        <SelectItem
+                                            key={c.id}
+                                            value={c.id.toString()}
+                                        >
+                                            {c.code} ({c.symbol})
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    )}
             </CardHeader>
             <CardContent className="space-y-6">
                 <div className="grid grid-cols-3 gap-3">
@@ -82,7 +135,7 @@ export function AmountSelector({
                             }}
                         >
                             <span className="font-geist text-2xl font-bold">
-                                {campaign.currency.symbol}
+                                {selectedCurrency.symbol}
                                 {preset.amount / 100}
                             </span>
                             <span className="font-inter text-[11px] font-medium tracking-wider uppercase opacity-70">
@@ -95,7 +148,7 @@ export function AmountSelector({
                 {campaign.allow_custom_amount && (
                     <div className="group relative">
                         <span className="absolute top-1/2 left-4 -translate-y-1/2 font-geist text-lg font-bold text-brand-foreground-muted">
-                            {campaign.currency.symbol}
+                            {selectedCurrency.symbol}
                         </span>
                         <Input
                             type="number"

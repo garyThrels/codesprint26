@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Actions\Exports\ExportRowsToCsv;
 use App\Http\Controllers\Controller;
 use Domain\Donation\Models\Donation;
 use Domain\Donation\Services\DonationReceiptService;
@@ -11,6 +12,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class DonationLedgerController extends Controller
 {
@@ -20,30 +22,47 @@ class DonationLedgerController extends Controller
 
     public function index(Request $request): Response
     {
-        $query = Donation::with('campaign')->latest();
-
-        if ($request->search) {
-            $search = $request->search;
-
-            $query->where(function (Builder $query) use ($search): void {
-                $query->where('donor_name', 'like', "%{$search}%")
-                    ->orWhere('donor_email', 'like', "%{$search}%")
-                    ->orWhere('mastercard_transaction_id', 'like', "%{$search}%");
-            });
-        }
-
-        if ($request->status) {
-            $query->where('status', $request->status);
-        }
-
-        if ($request->campaign_id) {
-            $query->where('campaign_id', $request->campaign_id);
-        }
-
         return Inertia::render('admin/ledger/index', [
-            'donations' => $query->paginate(20)->withQueryString(),
+            'donations' => $this->query($request)->paginate(20)->withQueryString(),
             'filters' => $request->only(['search', 'status', 'campaign_id']),
         ]);
+    }
+
+    public function export(Request $request, ExportRowsToCsv $exportRowsToCsv): StreamedResponse
+    {
+        $headings = [
+            'ID',
+            'Date',
+            'Donor Name',
+            'Donor Email',
+            'Campaign',
+            'Amount',
+            'Currency',
+            'Amount (EUR)',
+            'Status',
+            'Transaction ID',
+            'Anonymous',
+            'Gift Aid',
+        ];
+
+        $rows = $this->query($request)->get()->map(fn (Donation $donation) => [
+            $donation->id,
+            $donation->created_at->toDateTimeString(),
+            $donation->donor_name,
+            $donation->donor_email,
+            $donation->campaign->name,
+            number_format($donation->amount / 100, 2),
+            $donation->currency->code,
+            number_format($donation->amount_in_base_currency / 100, 2),
+            $donation->status->value,
+            $donation->mastercard_transaction_id,
+            $donation->is_anonymous ? 'Yes' : 'No',
+            $donation->gift_aid_enabled ? 'Yes' : 'No',
+        ]);
+
+        $filename = 'ledger-'.now()->format('Y-m-d_His').'.csv';
+
+        return $exportRowsToCsv($filename, $headings, $rows);
     }
 
     public function update(Request $request, Donation $donation): RedirectResponse
@@ -94,6 +113,8 @@ class DonationLedgerController extends Controller
                 'local_transaction_id' => $donation->mastercard_transaction_id,
                 'mastercard_transaction_id' => $donation->mastercard_transaction_id,
                 'amount' => $donation->amount,
+                'currency' => $donation->currency->code,
+                'amount_in_base_currency' => $donation->amount_in_base_currency,
                 'local_status' => $donation->status,
                 'mastercard_status' => $isMatch ? $donation->status : 'pending',
                 'is_match' => $isMatch,
@@ -104,5 +125,23 @@ class DonationLedgerController extends Controller
         return Inertia::render('admin/ledger/reconciliation', [
             'comparison' => $comparison,
         ]);
+    }
+
+    /**
+     * @return Builder<Donation>
+     */
+    private function query(Request $request): Builder
+    {
+        return Donation::with(['campaign', 'currency'])
+            ->latest()
+            ->when($request->search, function (Builder $query, string $search): void {
+                $query->where(function (Builder $query) use ($search): void {
+                    $query->where('donor_name', 'like', "%{$search}%")
+                        ->orWhere('donor_email', 'like', "%{$search}%")
+                        ->orWhere('mastercard_transaction_id', 'like', "%{$search}%");
+                });
+            })
+            ->when($request->status, fn (Builder $query, string $status) => $query->where('status', $status))
+            ->when($request->campaign_id, fn (Builder $query, string $campaignId) => $query->where('campaign_id', $campaignId));
     }
 }

@@ -148,7 +148,7 @@ export default function Reconciliation({
                                             </code>
                                         </TableCell>
                                         <TableCell>
-                                            €{item.amount.toFixed(2)}
+                                            €{(item.amount / 100).toFixed(2)}
                                         </TableCell>
                                         <TableCell>
                                             <Badge

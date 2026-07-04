@@ -54,6 +54,67 @@ test('search combined with a status filter does not leak other statuses', functi
         ->assertInertia(fn ($page) => $page->has('donations.data', 1));
 });
 
+test('the ledger can be filtered by date range', function () {
+    Donation::query()->delete();
+    $campaign = Campaign::first();
+
+    // Create an old donation
+    Donation::factory()->for($campaign)->create([
+        'created_at' => now()->subDays(10),
+    ]);
+
+    // Create a new donation
+    Donation::factory()->for($campaign)->create([
+        'created_at' => now(),
+    ]);
+
+    $this->actingAs($this->admin)
+        ->get(route('admin.ledger.index', [
+            'date_from' => now()->subDays(1)->toDateString(),
+            'date_to' => now()->addDays(1)->toDateString(),
+        ]))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page->has('donations.data', 1));
+});
+
+test('the ledger can be filtered by campaign', function () {
+    Donation::query()->delete();
+    $otherCampaign = Campaign::factory()->create();
+    Donation::factory()->for($otherCampaign)->create();
+
+    $this->actingAs($this->admin)
+        ->get(route('admin.ledger.index', ['campaign_id' => $otherCampaign->id]))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page->has('donations.data', 1));
+});
+
+test('the ledger can be filtered by amount', function () {
+    Donation::query()->delete();
+    $campaign = Campaign::first();
+
+    Donation::factory()->for($campaign)->create(['amount' => 1000]); // 10.00 EUR
+    Donation::factory()->for($campaign)->create(['amount' => 2000]); // 20.00 EUR
+    Donation::factory()->for($campaign)->create(['amount' => 3000]); // 30.00 EUR
+
+    // Greater than 15.00 EUR (20 and 30)
+    $this->actingAs($this->admin)
+        ->get(route('admin.ledger.index', ['amount' => 15, 'amount_operator' => 'gt']))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page->has('donations.data', 2));
+
+    // Less than 25.00 EUR (10 and 20)
+    $this->actingAs($this->admin)
+        ->get(route('admin.ledger.index', ['amount' => 25, 'amount_operator' => 'lt']))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page->has('donations.data', 2));
+
+    // Equal to 20.00 EUR
+    $this->actingAs($this->admin)
+        ->get(route('admin.ledger.index', ['amount' => 20, 'amount_operator' => 'eq']))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page->has('donations.data', 1));
+});
+
 test('the reconciliation view loads for an admin', function () {
     $this->actingAs($this->admin)
         ->get(route('admin.ledger.reconciliation'))

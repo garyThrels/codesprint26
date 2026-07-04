@@ -12,7 +12,7 @@ class DashboardController extends Controller
 {
     public function index(): Response
     {
-        $totalRaised = Donation::where('status', 'success')->sum('amount');
+        $totalRaised = Donation::where('status', 'success')->sum('amount_in_base_currency');
         $totalDonations = Donation::where('status', 'success')->count();
 
         $uniqueNamedDonors = Donation::query()
@@ -35,11 +35,13 @@ class DashboardController extends Controller
         }])
             ->withSum(['donations' => function ($query) {
                 $query->where('status', 'success');
-            }], 'amount')
+            }], 'amount_in_base_currency')
             ->with(['currency'])
             ->get()
             ->map(function ($campaign) {
-                $raised = $campaign->donations_sum_amount ?? 0;
+                $raisedInBaseCurrency = $campaign->donations_sum_amount_in_base_currency ?? 0;
+                // Convert back to campaign currency for progress calculation
+                $raised = (int) round($raisedInBaseCurrency / $campaign->currency->exchange_rate);
 
                 return [
                     'id' => $campaign->id,
@@ -67,6 +69,7 @@ class DashboardController extends Controller
             'recentDonations' => Donation::with(['campaign', 'currency'])->latest()->take(10)->get()->map(fn ($d) => [
                 ...$d->toArray(),
                 'amount' => $d->amount / 100,
+                'amount_in_base_currency' => $d->amount_in_base_currency / 100,
             ]),
         ]);
     }

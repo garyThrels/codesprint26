@@ -3,6 +3,7 @@
 namespace Domain\Donation;
 
 use Domain\Campaign\Models\Campaign;
+use Domain\Currency\Models\Currency;
 use Domain\Donation\Data\DonationRequestData;
 use Domain\Donation\Models\Donation;
 use Domain\Mastercard\Services\MastercardService;
@@ -16,19 +17,38 @@ final class DonationProcessor
 
     public function execute(DonationRequestData $data): Donation
     {
-        // The donation is always made in the campaign's own currency, so we
-        // resolve it here rather than trusting whatever the client submitted.
-        $campaign = Campaign::with('currency')->findOrFail($data->campaignId);
+        $campaign = Campaign::with(['charity.currencies', 'currency'])->findOrFail($data->campaignId);
 
-        return DB::transaction(function () use ($data, $campaign) {
+        // Resolve the currency. Use the provided currencyId if it's supported by the charity,
+        // otherwise fall back to the campaign's default currency.
+        $supportedCurrencies = $campaign->charity->currencies;
+        $currencyId = $data->currencyId;
+
+        if ($currencyId && $supportedCurrencies->isNotEmpty()) {
+            $isSupported = $supportedCurrencies->contains('id', $currencyId);
+            if (! $isSupported) {
+                $currencyId = $campaign->currency_id;
+            }
+        } else {
+            $currencyId = $campaign->currency_id;
+        }
+
+        $currency = Currency::findOrFail($currencyId);
+
+        return DB::transaction(function () use ($data, $campaign, $currency) {
             $giftAidAmount = $data->giftAidEnabled ? (int) round($data->amount * 0.25) : 0;
             $totalBenefitAmount = $data->amount + $giftAidAmount;
+
+            // Calculate amount in base currency (EUR)
+            // exchange_rate is expressed relative to EUR (e.g. 1 USD = 0.92 EUR)
+            $amountInBaseCurrency = (int) round($data->amount * $currency->exchange_rate);
 
             // 1. Create a pending donation record
             $donation = Donation::create([
                 'campaign_id' => $campaign->id,
                 'amount' => $data->amount,
-                'currency_id' => $campaign->currency_id,
+                'amount_in_base_currency' => $amountInBaseCurrency,
+                'currency_id' => $currency->id,
                 'status' => 'pending',
                 'payment_method' => $data->paymentMethod,
                 'donor_name' => $data->isAnonymous ? null : $data->donorName,
@@ -47,7 +67,7 @@ final class DonationProcessor
             ]);
 
             // 2. Process with Mastercard (real signed call for card payments)
-            $result = $this->mastercard->process($data, $campaign->currency?->code ?? 'EUR');
+            $result = $this->mastercard->process($data, $currency->code);
 
             // 3. Update donation status, keeping the Mastercard response details
             $donation->update([

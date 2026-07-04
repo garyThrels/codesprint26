@@ -45,6 +45,8 @@ export default function DonationForm({
     const [selectedAmount, setSelectedAmount] = useState<number | null>(
         initialAmount ? Math.round(initialAmount) : null,
     );
+    const defaultCurrency = charity.supported_currencies?.[0] || campaign.currency;
+    const [selectedCurrency, setSelectedCurrency] = useState(defaultCurrency);
 
     const { data, setData, post, transform } = useForm({
         campaignId: campaign.id,
@@ -65,6 +67,7 @@ export default function DonationForm({
         giftAidName: '',
         giftAidAddress: '',
         roundUp: false,
+        currencyId: defaultCurrency.id,
     });
 
     const { styles: brandingStyles, palette } = useBrandBranding(
@@ -75,8 +78,13 @@ export default function DonationForm({
     const formatCurrency = (amount: number) => {
         return new Intl.NumberFormat('en-IE', {
             style: 'currency',
-            currency: campaign.currency.code,
+            currency: selectedCurrency.code,
         }).format(amount / 100);
+    };
+
+    const handleCurrencyChange = (currency: any) => {
+        setSelectedCurrency(currency);
+        setData('currencyId', currency.id);
     };
 
     const handleAmountSelect = (amount: number) => {
@@ -206,10 +214,13 @@ export default function DonationForm({
         <div style={brandingStyles} className="space-y-6">
             <AmountSelector
                 campaign={campaign}
+                charity={charity}
                 selectedAmount={selectedAmount}
                 customAmount={customAmount}
+                selectedCurrency={selectedCurrency}
                 onSelectAmount={handleAmountSelect}
                 onCustomAmountChange={handleCustomAmountChange}
+                onCurrencyChange={handleCurrencyChange}
                 onDonate={openPaymentModal}
                 palette={palette}
             />
