@@ -43,9 +43,11 @@ class Campaign extends Model implements HasMedia
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('hero')
+            ->useDisk('public')
             ->singleFile();
 
         $this->addMediaCollection('gallery')
+            ->useDisk('public')
             ->onlyKeepLatest(4);
     }
 

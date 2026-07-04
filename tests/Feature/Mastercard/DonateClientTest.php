@@ -1,6 +1,6 @@
 <?php
 
-use App\Services\Mastercard\DonateClient;
+use Domain\Mastercard\Services\DonateClient;
 use Illuminate\Support\Facades\Http;
 
 function makeDonateClient(array $overrides = []): DonateClient

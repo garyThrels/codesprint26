@@ -70,23 +70,23 @@ export default [
                     fixStyle: 'separate-type-imports',
                 },
             ],
-            'import/order': [
-                'error',
-                {
-                    groups: [
-                        'builtin',
-                        'external',
-                        'internal',
-                        'parent',
-                        'sibling',
-                        'index',
-                    ],
-                    alphabetize: {
-                        order: 'asc',
-                        caseInsensitive: true,
-                    },
-                },
-            ],
+            // 'import/order': [
+            //     'error',
+            //     {
+            //         groups: [
+            //             'builtin',
+            //             'external',
+            //             'internal',
+            //             'parent',
+            //             'sibling',
+            //             'index',
+            //         ],
+            //         alphabetize: {
+            //             order: 'asc',
+            //             caseInsensitive: true,
+            //         },
+            //     },
+            // ],
             'import/consistent-type-specifier-style': [
                 'error',
                 'prefer-top-level',
@@ -98,7 +98,11 @@ export default [
             '@stylistic': stylistic,
         },
         rules: {
-            '@stylistic/brace-style': ['error', '1tbs', { allowSingleLine: false }],
+            '@stylistic/brace-style': [
+                'error',
+                '1tbs',
+                { allowSingleLine: false },
+            ],
             '@stylistic/padding-line-between-statements': [
                 'error',
                 ...paddingAroundControl,
@@ -126,7 +130,11 @@ export default [
         },
         rules: {
             curly: ['error', 'all'],
-            '@stylistic/brace-style': ['error', '1tbs', { allowSingleLine: false }],
+            '@stylistic/brace-style': [
+                'error',
+                '1tbs',
+                { allowSingleLine: false },
+            ],
         },
     },
 ];

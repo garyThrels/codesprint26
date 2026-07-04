@@ -2,6 +2,7 @@
 
 use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
+use Illuminate\Support\Facades\Hash;
 
 beforeEach(function () {
     $this->seed(RolePermissionSeeder::class);
@@ -12,17 +13,17 @@ test('guests are redirected from the admin portal to login', function () {
 });
 
 test('users without admin access receive a 403', function () {
-    $donor = User::factory()->create();
-    $donor->assignRole('donor');
+    $user = User::factory()->create();
+    // No roles assigned
 
-    $this->actingAs($donor)
+    $this->actingAs($user)
         ->get(route('admin.dashboard'))
         ->assertForbidden();
 });
 
 test('staff with access admin panel permission can enter the admin portal', function () {
     $admin = User::factory()->create();
-    $admin->assignRole('admin');
+    $admin->assignRole('charity-admin');
 
     $this->actingAs($admin)
         ->get(route('admin.dashboard'))
@@ -43,16 +44,16 @@ test('super-admin bypasses individual permission checks', function () {
 
 test('staff are redirected to the admin portal after login', function () {
     $admin = User::factory()->create(['password' => Hash::make('password')]);
-    $admin->assignRole('manager');
+    $admin->assignRole('charity-admin');
 
     $this->post('/login', ['email' => $admin->email, 'password' => 'password'])
         ->assertRedirect(route('admin.dashboard'));
 });
 
 test('clients are redirected to the client dashboard after login', function () {
-    $donor = User::factory()->create(['password' => Hash::make('password')]);
-    $donor->assignRole('donor');
+    $user = User::factory()->create(['password' => Hash::make('password')]);
+    // No special admin role
 
-    $this->post('/login', ['email' => $donor->email, 'password' => 'password'])
+    $this->post('/login', ['email' => $user->email, 'password' => 'password'])
         ->assertRedirect(route('dashboard'));
 });

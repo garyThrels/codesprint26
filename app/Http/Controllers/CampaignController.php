@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-
 use Domain\Campaign\Models\Campaign;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -15,7 +13,7 @@ class CampaignController extends Controller
         $campaigns = Campaign::with(['charity', 'currency'])->where('status', 'active')->get();
 
         return Inertia::render('welcome', [
-            'campaigns' => $campaigns->map(fn($campaign) => [
+            'campaigns' => $campaigns->map(fn ($campaign) => [
                 'id' => $campaign->id,
                 'name' => $campaign->name,
                 'tagline' => $campaign->tagline,
@@ -26,6 +24,7 @@ class CampaignController extends Controller
                     'brand_color' => $campaign->charity->brand_color,
                     'logo_url' => $campaign->charity->getFirstMediaUrl('logo'),
                 ],
+                'currency' => $campaign->currency,
             ]),
         ]);
     }
@@ -33,7 +32,7 @@ class CampaignController extends Controller
     public function show(Campaign $campaign): Response
     {
         $campaign->load(['charity', 'currency']);
-        
+
         return Inertia::render('donation/show', [
             'campaign' => [
                 'id' => $campaign->id,
@@ -47,7 +46,7 @@ class CampaignController extends Controller
                 'preselected_index' => $campaign->preselected_index,
                 'allow_custom_amount' => $campaign->allow_custom_amount,
                 'hero_url' => $campaign->getFirstMediaUrl('hero'),
-                'gallery' => $campaign->getMedia('gallery')->map(fn($media) => $media->getUrl()),
+                'gallery' => $campaign->getMedia('gallery')->map(fn ($media) => $media->getUrl()),
             ],
             'charity' => [
                 'name' => $campaign->charity->name,

@@ -4,9 +4,6 @@ namespace App\Http\Controllers;
 
 use Domain\Donation\Data\DonationRequestData;
 use Domain\Donation\DonationProcessor;
-use Illuminate\Http\Request;
-use Inertia\Inertia;
-use Inertia\Response;
 
 class DonationController extends Controller
 {

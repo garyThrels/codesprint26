@@ -10,7 +10,7 @@ beforeEach(function () {
 function adminUser(): User
 {
     $admin = User::factory()->create();
-    $admin->assignRole('admin');
+    $admin->assignRole('charity-admin');
 
     return $admin;
 }
@@ -24,10 +24,10 @@ test('admins can view the audit log', function () {
 });
 
 test('staff without the view audit log permission are forbidden', function () {
-    $manager = User::factory()->create();
-    $manager->assignRole('manager');
+    $volunteer = User::factory()->create();
+    $volunteer->assignRole('volunteer');
 
-    $this->actingAs($manager)
+    $this->actingAs($volunteer)
         ->get(route('admin.audit-log.index'))
         ->assertForbidden();
 });
