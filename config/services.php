@@ -35,4 +35,14 @@ return [
         ],
     ],
 
+    'mastercard' => [
+        'base_url' => env('MASTERCARD_BASE_URL', 'https://sandbox.api.mastercard.com/donations'),
+        'consumer_key' => env('MASTERCARD_CONSUMER_KEY'),
+        'client_id' => env('MASTERCARD_CLIENT_ID'),
+        'program_id' => env('MASTERCARD_PROGRAM_ID'),
+        'keystore_path' => env('MASTERCARD_KEYSTORE_PATH', storage_path('mastercard/signing-key.p12')),
+        'keystore_alias' => env('MASTERCARD_KEYSTORE_ALIAS', 'keyalias'),
+        'keystore_password' => env('MASTERCARD_KEYSTORE_PASSWORD', 'keystorepassword'),
+    ],
+
 ];

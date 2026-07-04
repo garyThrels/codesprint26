@@ -2,9 +2,12 @@
 
 namespace App\Providers;
 
+use App\Models\User;
+use App\Services\Mastercard\DonateClient;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 
@@ -15,7 +18,10 @@ final class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(
+            DonateClient::class,
+            fn (): DonateClient => new DonateClient(config('services.mastercard')),
+        );
     }
 
     /**
@@ -24,6 +30,15 @@ final class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureDefaults();
+        $this->configureAuthorization();
+    }
+
+    /**
+     * Grant the super-admin role every ability, bypassing individual checks.
+     */
+    protected function configureAuthorization(): void
+    {
+        Gate::before(fn (User $user): ?bool => $user->hasRole('super-admin') ? true : null);
     }
 
     /**

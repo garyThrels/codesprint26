@@ -35,4 +35,4 @@ Makefile
 Thumbs.db
 /laravel
 .ai
-
+/storage/mastercard

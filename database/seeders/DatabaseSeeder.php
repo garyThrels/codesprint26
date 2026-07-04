@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 final class DatabaseSeeder extends Seeder
@@ -13,11 +12,18 @@ final class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        $this->call(RolePermissionSeeder::class);
 
+        // Admin portal login (full access).
         User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+            'name' => 'Admin User',
+            'email' => 'admin@codesprint.test',
+        ])->assignRole('super-admin');
+
+        // Client-facing portal login.
+        User::factory()->create([
+            'name' => 'Client User',
+            'email' => 'client@codesprint.test',
+        ])->assignRole('donor');
     }
 }
