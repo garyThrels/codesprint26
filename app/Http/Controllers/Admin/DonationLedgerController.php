@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Domain\Donation\Models\Donation;
 use Domain\Mastercard\Services\DonateClient;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -16,9 +17,13 @@ class DonationLedgerController extends Controller
         $query = Donation::with('campaign')->latest();
 
         if ($request->search) {
-            $query->where('donor_name', 'like', "%{$request->search}%")
-                ->orWhere('donor_email', 'like', "%{$request->search}%")
-                ->orWhere('mastercard_transaction_id', 'like', "%{$request->search}%");
+            $search = $request->search;
+
+            $query->where(function (Builder $query) use ($search): void {
+                $query->where('donor_name', 'like', "%{$search}%")
+                    ->orWhere('donor_email', 'like', "%{$search}%")
+                    ->orWhere('mastercard_transaction_id', 'like', "%{$search}%");
+            });
         }
 
         if ($request->status) {

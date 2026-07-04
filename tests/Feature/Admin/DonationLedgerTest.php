@@ -36,6 +36,24 @@ test('the ledger can be searched by the mastercard transaction id', function () 
         ->assertOk();
 });
 
+test('search combined with a status filter does not leak other statuses', function () {
+    $currency = Currency::first();
+    $campaign = Campaign::first();
+
+    // A failed donation whose donor name matches the search term. It must be
+    // excluded when the status filter is set to "success".
+    Donation::factory()->for($campaign)->create([
+        'status' => 'failed',
+        'donor_name' => 'Jane Donor',
+        'mastercard_transaction_id' => 'sim_fail_XYZ789',
+    ]);
+
+    $this->actingAs($this->admin)
+        ->get(route('admin.ledger.index', ['search' => 'Jane Donor', 'status' => 'success']))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page->has('donations.data', 1));
+});
+
 test('the reconciliation view loads for an admin', function () {
     $this->actingAs($this->admin)
         ->get(route('admin.ledger.reconciliation'))
