@@ -8,7 +8,7 @@ import type { Campaign } from '@/types';
 import { useBrandBranding } from '@/hooks/use-brand-branding';
 
 function CampaignCard({ campaign }: { campaign: Campaign }) {
-    const brandingStyles = useBrandBranding(
+    const { styles: brandingStyles, palette } = useBrandBranding(
         campaign.charity.brand_color,
         campaign.charity.surface_tint || 'warm',
     );
@@ -38,43 +38,78 @@ function CampaignCard({ campaign }: { campaign: Campaign }) {
                                     className="h-4 w-4 object-contain"
                                 />
                             )}
-                            <span className="font-inter text-[10px] font-bold tracking-widest text-brand-foreground uppercase">
+                            <span
+                                className="font-inter text-[10px] font-bold tracking-widest uppercase"
+                                style={{ color: palette['foreground-primary'] }}
+                            >
                                 {campaign.charity.name}
                             </span>
                         </div>
                     </div>
                     {/* Hover Overlay */}
-                    <div className="absolute inset-0 bg-brand-primary opacity-0 transition-opacity duration-500 group-hover:opacity-10" />
+                    <div
+                        className="absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-10"
+                        style={{ backgroundColor: palette['accent-primary'] }}
+                    />
                 </div>
 
                 <div className="flex grow flex-col space-y-3 p-7">
-                    <h3 className="line-clamp-1 font-playfair text-2xl font-bold text-brand-foreground">
+                    <h3
+                        className="line-clamp-1 font-playfair text-2xl font-bold"
+                        style={{ color: palette['foreground-primary'] }}
+                    >
                         {campaign.name}
                     </h3>
-                    <p className="line-clamp-2 font-inter text-sm leading-relaxed font-medium text-brand-foreground-secondary">
+                    <p
+                        className="line-clamp-2 font-inter text-sm leading-relaxed font-medium"
+                        style={{ color: palette['foreground-secondary'] }}
+                    >
                         {campaign.tagline}
                     </p>
 
                     <div className="mt-auto space-y-4 pt-4">
-                        <div className="h-1.5 w-full overflow-hidden rounded-full bg-brand-surface-secondary">
+                        <div
+                            className="h-1.5 w-full overflow-hidden rounded-full"
+                            style={{
+                                backgroundColor: palette['surface-secondary'],
+                            }}
+                        >
                             <div
-                                className="h-full rounded-full bg-brand-primary transition-all duration-1000 group-hover:opacity-80"
-                                style={{ width: '45%' }}
+                                className="h-full rounded-full transition-all duration-1000 group-hover:opacity-80"
+                                style={{
+                                    width: '45%',
+                                    backgroundColor: palette['accent-primary'],
+                                }}
                             />
                         </div>
                         <div className="flex items-center justify-between">
                             <div className="flex flex-col">
-                                <span className="font-geist text-[14px] font-bold text-brand-foreground">
+                                <span
+                                    className="font-geist text-[14px] font-bold"
+                                    style={{
+                                        color: palette['foreground-primary'],
+                                    }}
+                                >
                                     {campaign.currency.symbol}
                                     {(
                                         campaign.goal_amount / 100
                                     ).toLocaleString()}
                                 </span>
-                                <span className="font-inter text-[10px] font-bold tracking-wider text-brand-foreground-muted uppercase">
+                                <span
+                                    className="font-inter text-[10px] font-bold tracking-wider uppercase"
+                                    style={{
+                                        color: palette['foreground-muted'],
+                                    }}
+                                >
                                     Target Goal
                                 </span>
                             </div>
-                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-primary text-white transition-all duration-300 group-hover:scale-110">
+                            <div
+                                className="flex h-10 w-10 items-center justify-center rounded-full text-white transition-all duration-300 group-hover:scale-110"
+                                style={{
+                                    backgroundColor: palette['accent-primary'],
+                                }}
+                            >
                                 <ChevronRight className="h-5 w-5" />
                             </div>
                         </div>

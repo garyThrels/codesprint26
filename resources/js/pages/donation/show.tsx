@@ -17,7 +17,7 @@ export default function CampaignShow({
     campaign: Campaign;
     charity: Charity;
 }) {
-    const brandingStyles = useBrandBranding(
+    const { styles: brandingStyles, palette } = useBrandBranding(
         charity.brand_color,
         charity.surface_tint,
     );
@@ -44,16 +44,24 @@ export default function CampaignShow({
     };
 
     return (
-        <div className="min-h-screen bg-brand-surface" style={brandingStyles}>
-            <SEO 
+        <div
+            className="min-h-screen"
+            style={{
+                ...brandingStyles,
+                backgroundColor:
+                    palette['surface-primary'] || 'var(--brand-surface)',
+            }}
+        >
+            <SEO
                 title={campaign.name}
                 description={campaign.tagline}
                 image={campaign.hero_url}
             />
 
-            <CampaignNavbar 
-                title={`${campaign.name} - ${charity.name}`} 
+            <CampaignNavbar
+                title={`${campaign.name} - ${charity.name}`}
                 onShare={() => setIsShareModalOpen(true)}
+                palette={palette}
             />
 
             <main className="mx-auto max-w-[1280px] p-4 md:px-10 md:py-8">
@@ -90,8 +98,10 @@ export default function CampaignShow({
                                         <h1 className="font-playfair text-2xl font-bold text-white md:text-4xl">
                                             {campaign.name}
                                         </h1>
-                                        <button 
-                                            onClick={() => setIsShareModalOpen(true)}
+                                        <button
+                                            onClick={() =>
+                                                setIsShareModalOpen(true)
+                                            }
                                             className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-md transition-all hover:bg-white/30 md:hidden"
                                         >
                                             <Share2 className="h-5 w-5" />
@@ -101,7 +111,16 @@ export default function CampaignShow({
                                         {campaign.tagline}
                                     </p>
                                     <div className="mt-2">
-                                        <span className="rounded-full bg-brand-surface-inverse px-2 py-1 font-inter text-sm font-semibold text-white">
+                                        <span
+                                            className="rounded-full px-2 py-1 font-inter text-sm font-semibold text-white"
+                                            style={{
+                                                backgroundColor:
+                                                    palette[
+                                                        'surface-inverse'
+                                                    ] ||
+                                                    'var(--brand-surface-inverse)',
+                                            }}
+                                        >
                                             {charity.name}
                                         </span>
                                     </div>
@@ -135,15 +154,27 @@ export default function CampaignShow({
                             donorCount={campaign.donor_count}
                             progress={progress}
                             formatCurrency={formatCurrency}
+                            palette={palette}
                         />
 
                         {/* About Section */}
-                        <section className="space-y-4 rounded-2xl bg-brand-surface-secondary p-5 shadow-sm md:space-y-6 md:rounded-3xl md:p-8">
-                            <h2 className="font-playfair text-xl font-bold text-brand-foreground md:text-2xl">
+                        <section
+                            className="space-y-4 rounded-2xl p-5 shadow-sm md:space-y-6 md:rounded-3xl md:p-8"
+                            style={{
+                                backgroundColor: palette['surface-secondary'],
+                            }}
+                        >
+                            <h2
+                                className="font-playfair text-xl font-bold md:text-2xl"
+                                style={{ color: palette['foreground-primary'] }}
+                            >
                                 {campaign.about_title || 'About this Campaign'}
                             </h2>
                             <div
-                                className="font-inter text-sm leading-[1.65] text-brand-foreground-secondary md:text-[15px]"
+                                className="font-inter text-sm leading-[1.65] md:text-[15px]"
+                                style={{
+                                    color: palette['foreground-secondary'],
+                                }}
                                 dangerouslySetInnerHTML={{
                                     __html: campaign.description_html,
                                 }}
@@ -172,6 +203,7 @@ export default function CampaignShow({
                             donorCount={campaign.donor_count}
                             progress={progress}
                             formatCurrency={formatCurrency}
+                            palette={palette}
                         />
 
                         {/* Additional Info / Trust Badges */}

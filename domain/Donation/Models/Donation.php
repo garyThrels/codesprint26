@@ -25,6 +25,13 @@ class Donation extends Model
         'donor_email',
         'is_anonymous',
         'is_recurring',
+        'gift_aid_enabled',
+        'gift_aid_name',
+        'gift_aid_address',
+        'gift_aid_amount',
+        'total_benefit_amount',
+        'receipt_sent_at',
+        'round_up',
         'metadata',
     ];
 
@@ -61,6 +68,9 @@ class Donation extends Model
             'status' => DonationStatus::class,
             'is_anonymous' => 'boolean',
             'is_recurring' => 'boolean',
+            'gift_aid_enabled' => 'boolean',
+            'round_up' => 'boolean',
+            'receipt_sent_at' => 'datetime',
             'metadata' => 'array',
         ];
     }

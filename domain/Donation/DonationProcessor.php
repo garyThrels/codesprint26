@@ -21,6 +21,9 @@ final class DonationProcessor
         $campaign = Campaign::with('currency')->findOrFail($data->campaignId);
 
         return DB::transaction(function () use ($data, $campaign) {
+            $giftAidAmount = $data->giftAidEnabled ? (int) round($data->amount * 0.25) : 0;
+            $totalBenefitAmount = $data->amount + $giftAidAmount;
+
             // 1. Create a pending donation record
             $donation = Donation::create([
                 'campaign_id' => $campaign->id,
@@ -32,7 +35,15 @@ final class DonationProcessor
                 'donor_email' => $data->donorEmail,
                 'is_anonymous' => $data->isAnonymous,
                 'is_recurring' => $data->isRecurring,
-                'metadata' => [],
+                'gift_aid_enabled' => $data->giftAidEnabled,
+                'gift_aid_name' => $data->giftAidName,
+                'gift_aid_address' => $data->giftAidAddress,
+                'gift_aid_amount' => $giftAidAmount,
+                'total_benefit_amount' => $totalBenefitAmount,
+                'round_up' => $data->roundUp,
+                'metadata' => [
+                    'simulated' => true,
+                ],
             ]);
 
             // 2. Process with Mastercard (real signed call for card payments)

@@ -16,5 +16,9 @@ final class DonationRequestData extends Data
         public ?string $donorEmail = null,
         public bool $isAnonymous = false,
         public bool $isRecurring = false,
+        public bool $giftAidEnabled = false,
+        public ?string $giftAidName = null,
+        public ?string $giftAidAddress = null,
+        public bool $roundUp = false,
     ) {}
 }

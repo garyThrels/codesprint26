@@ -4,14 +4,20 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Domain\Donation\Models\Donation;
+use Domain\Donation\Services\DonationReceiptService;
 use Domain\Mastercard\Services\DonateClient;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class DonationLedgerController extends Controller
 {
+    public function __construct(
+        private readonly DonationReceiptService $receipts
+    ) {}
+
     public function index(Request $request): Response
     {
         $query = Donation::with('campaign')->latest();
@@ -38,6 +44,31 @@ class DonationLedgerController extends Controller
             'donations' => $query->paginate(20)->withQueryString(),
             'filters' => $request->only(['search', 'status', 'campaign_id']),
         ]);
+    }
+
+    public function update(Request $request, Donation $donation): RedirectResponse
+    {
+        $validated = $request->validate([
+            'donor_email' => ['nullable', 'email', 'max:255'],
+            'is_anonymous' => ['required', 'boolean'],
+        ]);
+
+        $donation->update($validated);
+
+        return back()->with('success', 'Donation updated successfully.');
+    }
+
+    public function sendReceipt(Request $request, Donation $donation): RedirectResponse
+    {
+        $email = $request->input('email', $donation->donor_email);
+
+        if (! $email) {
+            return back()->with('error', 'No email address found for this donor.');
+        }
+
+        $this->receipts->send($donation, $email);
+
+        return back()->with('success', 'Receipt sent successfully.');
     }
 
     public function reconciliation(DonateClient $mastercard): Response

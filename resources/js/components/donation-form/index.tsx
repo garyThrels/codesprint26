@@ -4,8 +4,15 @@ import { toast } from 'sonner';
 import { store as storeDonation } from '@/routes/donations';
 import { useBrandBranding } from '@/hooks/use-brand-branding';
 import { AmountSelector } from './amount-selector';
+import { DonationOptions } from './donation-options';
+import { GiftAidForm } from './gift-aid-form';
 import { DonationStatus } from './donation-status';
 import { PaymentModal } from './payment-modal';
+import { ReceiptModal } from './receipt-modal';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 import type {
     Campaign,
     CardData,
@@ -26,6 +33,8 @@ export default function DonationForm({
 }) {
     const [step, setStep] = useState<DonationStep>('amount');
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isReceiptModalOpen, setIsReceiptModalOpen] = useState(false);
+    const [lastDonationId, setLastDonationId] = useState<number | null>(null);
     const [customAmount, setCustomAmount] = useState<string>('');
     const [failureMessage, setFailureMessage] = useState<string | null>(null);
 
@@ -50,10 +59,15 @@ export default function DonationForm({
         },
         donorName: '',
         donorEmail: '',
-        isAnonymous: false,
+        isAnonymous: true,
+        isRecurring: false,
+        giftAidEnabled: false,
+        giftAidName: '',
+        giftAidAddress: '',
+        roundUp: false,
     });
 
-    const brandingStyles = useBrandBranding(
+    const { styles: brandingStyles, palette } = useBrandBranding(
         charity.brand_color,
         charity.surface_tint,
     );
@@ -127,6 +141,12 @@ export default function DonationForm({
                         return;
                     }
 
+                    // Check flash props for donation_id
+                    const donationId = (page.props as any).flash?.donation_id;
+                    if (donationId) {
+                        setLastDonationId(donationId);
+                    }
+
                     setStep('success');
                 },
                 onError: (formErrors) => {
@@ -138,15 +158,47 @@ export default function DonationForm({
         }, 2000);
     };
 
+    const getEffectiveAmount = (baseAmount: number, shouldRoundUp: boolean) => {
+        if (!shouldRoundUp) return baseAmount;
+
+        const roundTo = 1000; // Round to nearest 10 Euro
+
+        const rounded = Math.ceil(baseAmount / roundTo) * roundTo;
+
+        return rounded === baseAmount ? baseAmount + roundTo : rounded;
+    };
+
+    const effectiveAmount = getEffectiveAmount(data.amount, data.roundUp);
+
     if (step !== 'amount') {
         return (
-            <DonationStatus
-                status={step}
-                style={brandingStyles}
-                amountLabel={formatCurrency(data.amount)}
-                failureMessage={failureMessage ?? GENERIC_FAILURE_MESSAGE}
-                onReset={() => setStep('amount')}
-            />
+            <>
+                <DonationStatus
+                    status={step}
+                    style={brandingStyles}
+                    amountLabel={formatCurrency(effectiveAmount)}
+                    failureMessage={failureMessage ?? GENERIC_FAILURE_MESSAGE}
+                    onReset={() => setStep('amount')}
+                    onShowReceipt={() => setIsReceiptModalOpen(true)}
+                    donationId={lastDonationId}
+                    donorDetails={{
+                        donor_name: data.donorName,
+                        is_anonymous: data.isAnonymous,
+                        gift_aid_enabled: data.giftAidEnabled,
+                        gift_aid_name: data.giftAidName,
+                        gift_aid_address: data.giftAidAddress,
+                    }}
+                    palette={palette}
+                />
+                <ReceiptModal
+                    open={isReceiptModalOpen}
+                    onOpenChange={setIsReceiptModalOpen}
+                    donationId={lastDonationId}
+                    initialEmail={data.donorEmail}
+                    style={brandingStyles}
+                    palette={palette}
+                />
+            </>
         );
     }
 
@@ -159,6 +211,7 @@ export default function DonationForm({
                 onSelectAmount={handleAmountSelect}
                 onCustomAmountChange={handleCustomAmountChange}
                 onDonate={openPaymentModal}
+                palette={palette}
             />
 
             <PaymentModal
@@ -166,10 +219,25 @@ export default function DonationForm({
                 onOpenChange={setIsModalOpen}
                 style={brandingStyles}
                 campaign={campaign}
-                amountLabel={formatCurrency(data.amount)}
+                amountLabel={formatCurrency(effectiveAmount)}
                 card={data.card}
+                isRecurring={data.isRecurring}
+                onRecurringChange={(val) => setData('isRecurring', val)}
+                roundUp={data.roundUp}
+                onRoundUpChange={(val) => setData('roundUp', val)}
+                donorName={data.donorName}
+                onDonorNameChange={(val) => setData('donorName', val)}
+                isAnonymous={data.isAnonymous}
+                onAnonymousChange={(val) => setData('isAnonymous', val)}
+                giftAidEnabled={data.giftAidEnabled}
+                onGiftAidEnabledChange={(val) => setData('giftAidEnabled', val)}
+                giftAidName={data.giftAidName}
+                onGiftAidNameChange={(val) => setData('giftAidName', val)}
+                giftAidAddress={data.giftAidAddress}
+                onGiftAidAddressChange={(val) => setData('giftAidAddress', val)}
                 onCardChange={(card: CardData) => setData('card', card)}
                 onPay={processPayment}
+                palette={palette}
             />
         </div>
     );

@@ -13,8 +13,21 @@ class DashboardController extends Controller
     public function index(): Response
     {
         $totalRaised = Donation::where('status', 'success')->sum('amount');
-        $donorCount = Donation::where('status', 'success')->count();
         $totalDonations = Donation::where('status', 'success')->count();
+
+        $uniqueNamedDonors = Donation::query()
+            ->where('status', 'success')
+            ->where('is_anonymous', false)
+            ->select(['donor_email', 'donor_name'])
+            ->distinct()
+            ->get()
+            ->count();
+
+        $anonymousDonors = Donation::query()
+            ->where('status', 'success')
+            ->where('is_anonymous', true)
+            ->count();
+
         $averageDonation = $totalDonations > 0 ? $totalRaised / $totalDonations : 0;
 
         $campaigns = Campaign::withCount(['donations' => function ($query) {
@@ -41,7 +54,9 @@ class DashboardController extends Controller
         return Inertia::render('admin/dashboard', [
             'stats' => [
                 'totalRaised' => $totalRaised / 100,
-                'donorCount' => $donorCount,
+                'totalDonations' => $totalDonations,
+                'uniqueNamedDonors' => $uniqueNamedDonors,
+                'anonymousDonors' => $anonymousDonors,
                 'averageDonation' => round($averageDonation / 100, 2),
             ],
             'campaigns' => $campaigns->map(fn ($c) => [
