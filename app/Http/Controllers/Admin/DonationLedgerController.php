@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Services\Mastercard\DonateClient;
 use Domain\Donation\Models\Donation;
+use Domain\Mastercard\Services\DonateClient;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -18,7 +18,7 @@ class DonationLedgerController extends Controller
         if ($request->search) {
             $query->where('donor_name', 'like', "%{$request->search}%")
                 ->orWhere('donor_email', 'like', "%{$request->search}%")
-                ->orWhere('transaction_id', 'like', "%{$request->search}%");
+                ->orWhere('mastercard_transaction_id', 'like', "%{$request->search}%");
         }
 
         if ($request->status) {
@@ -41,7 +41,7 @@ class DonationLedgerController extends Controller
         // $mcTransactions = $mastercard->get('/donations');
 
         // Simulating Mastercard response for reconciliation
-        $donations = Donation::whereNotNull('transaction_id')->take(50)->get();
+        $donations = Donation::whereNotNull('mastercard_transaction_id')->take(50)->get();
 
         $comparison = $donations->map(function ($donation) {
             // Simulate that 5% of transactions might have a discrepancy (e.g. status mismatch)
@@ -55,8 +55,8 @@ class DonationLedgerController extends Controller
 
             return [
                 'id' => $donation->id,
-                'local_transaction_id' => $donation->transaction_id,
-                'mastercard_transaction_id' => $donation->transaction_id,
+                'local_transaction_id' => $donation->mastercard_transaction_id,
+                'mastercard_transaction_id' => $donation->mastercard_transaction_id,
                 'amount' => $donation->amount,
                 'local_status' => $donation->status,
                 'mastercard_status' => $isMatch ? $donation->status : 'pending',
