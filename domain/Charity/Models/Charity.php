@@ -3,9 +3,11 @@
 namespace Domain\Charity\Models;
 
 use Domain\Campaign\Models\Campaign;
+use Domain\Donation\Models\Donation;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
@@ -36,5 +38,13 @@ class Charity extends Model implements HasMedia
     public function campaigns(): HasMany
     {
         return $this->hasMany(Campaign::class);
+    }
+
+    /**
+     * @return HasManyThrough<Donation, Campaign, $this>
+     */
+    public function donations(): HasManyThrough
+    {
+        return $this->hasManyThrough(Donation::class, Campaign::class);
     }
 }

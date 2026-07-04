@@ -1,14 +1,16 @@
 import * as React from "react";
-import { X, Upload, ImageIcon } from "lucide-react";
+import { X, Upload } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 interface ImageUploadProps {
-    value?: string | string[];
+    value?: string | string[] | null;
     onChange: (value: File | File[] | null) => void;
     multiple?: boolean;
     className?: string;
     onRemove?: (url: string) => void;
+    maxSize?: number; // in MB
+    maxFiles?: number;
 }
 
 export function ImageUpload({ 
@@ -16,18 +18,20 @@ export function ImageUpload({
     onChange, 
     multiple = false, 
     className,
-    onRemove 
+    onRemove,
+    maxSize = 2,
+    maxFiles = 4
 }: ImageUploadProps) {
-    const [previews, setPreviews] = React.useState<string[]>([]);
+    const [selectedFiles, setSelectedFiles] = React.useState<File[]>([]);
+    const [filePreviews, setFilePreviews] = React.useState<string[]>([]);
     const fileInputRef = React.useRef<HTMLInputElement>(null);
 
+    // Clean up object URLs to avoid memory leaks
     React.useEffect(() => {
-        if (value) {
-            setPreviews(Array.isArray(value) ? value : [value]);
-        } else {
-            setPreviews([]);
-        }
-    }, [value]);
+        return () => {
+            filePreviews.forEach(url => URL.revokeObjectURL(url));
+        };
+    }, [filePreviews]);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
@@ -35,53 +39,109 @@ export function ImageUpload({
 
         const fileArray = Array.from(files);
         
-        // Update previews for local display
-        const newPreviews = fileArray.map(file => URL.createObjectURL(file));
-        if (multiple) {
-            setPreviews(prev => [...prev, ...newPreviews]);
-            onChange(fileArray);
-        } else {
-            setPreviews(newPreviews);
-            onChange(fileArray[0]);
+        // Validation
+        const existingUrlsCount = Array.isArray(value) ? value.length : (value ? 1 : 0);
+        if (multiple && existingUrlsCount + selectedFiles.length + fileArray.length > maxFiles) {
+            toast.error(`Maximum ${maxFiles} images allowed.`);
+            return;
         }
-    };
 
-    const removeImage = (index: number) => {
-        const newPreviews = [...previews];
-        const removedUrl = newPreviews.splice(index, 1)[0];
-        setPreviews(newPreviews);
-        
-        if (onRemove) {
-            onRemove(removedUrl);
+        const validFiles: File[] = [];
+        for (const file of fileArray) {
+            if (file.size > maxSize * 1024 * 1024) {
+                toast.error(`${file.name} is too large. Max size is ${maxSize}MB.`);
+                continue;
+            }
+            validFiles.push(file);
+        }
+
+        if (validFiles.length === 0) return;
+
+        const newPreviews = validFiles.map(file => URL.createObjectURL(file));
+
+        if (multiple) {
+            const updatedFiles = [...selectedFiles, ...validFiles];
+            const updatedPreviews = [...filePreviews, ...newPreviews];
+            setSelectedFiles(updatedFiles);
+            setFilePreviews(updatedPreviews);
+            onChange(updatedFiles);
+        } else {
+            filePreviews.forEach(url => URL.revokeObjectURL(url));
+            setSelectedFiles(validFiles);
+            setFilePreviews(newPreviews);
+            onChange(validFiles[0]);
         }
         
-        // Reset input if all cleared
-        if (newPreviews.length === 0 && fileInputRef.current) {
+        if (fileInputRef.current) {
             fileInputRef.current.value = "";
         }
     };
 
+    const removeFile = (index: number) => {
+        const updatedFiles = [...selectedFiles];
+        const updatedPreviews = [...filePreviews];
+        
+        URL.revokeObjectURL(updatedPreviews[index]);
+        updatedFiles.splice(index, 1);
+        updatedPreviews.splice(index, 1);
+        
+        setSelectedFiles(updatedFiles);
+        setFilePreviews(updatedPreviews);
+        
+        if (multiple) {
+            onChange(updatedFiles);
+        } else {
+            onChange(null);
+        }
+    };
+
+    const existingUrls = React.useMemo(() => {
+        if (!value) return [];
+        return Array.isArray(value) ? value : [value];
+    }, [value]);
+
     return (
         <div className={cn("grid gap-4", className)}>
             <div className="flex flex-wrap gap-4">
-                {previews.map((url, index) => (
-                    <div key={index} className="relative aspect-square w-24 overflow-hidden rounded-md border bg-muted">
+                {/* Existing Images */}
+                {existingUrls.map((url, index) => (
+                    <div key={`existing-${index}`} className="relative aspect-square w-24 overflow-hidden rounded-md border bg-muted group">
                         <img 
                             src={url} 
-                            alt="Preview" 
+                            alt="Existing" 
+                            className="h-full w-full object-cover"
+                        />
+                        {onRemove && (
+                            <button
+                                type="button"
+                                onClick={() => onRemove(url)}
+                                className="absolute top-1 right-1 rounded-full bg-destructive p-1 text-destructive-foreground opacity-0 group-hover:opacity-100 transition-opacity shadow-sm hover:bg-destructive/90 flex justify-center items-center"
+                            >
+                                <X className="h-3 w-3 text-white stroke-2" />
+                            </button>
+                        )}
+                    </div>
+                ))}
+
+                {/* New Previews */}
+                {filePreviews.map((url, index) => (
+                    <div key={`new-${index}`} className="relative aspect-square w-24 overflow-hidden rounded-md border bg-muted ring-2 ring-primary/20">
+                        <img 
+                            src={url} 
+                            alt="New preview" 
                             className="h-full w-full object-cover"
                         />
                         <button
                             type="button"
-                            onClick={() => removeImage(index)}
-                            className="absolute top-1 right-1 rounded-full bg-destructive p-1 text-destructive-foreground shadow-sm hover:bg-destructive/90"
+                            onClick={() => removeFile(index)}
+                            className="absolute top-1 right-1 rounded-full bg-destructive p-1 text-destructive-foreground shadow-sm hover:bg-destructive/90 flex justify-center items-center"
                         >
-                            <X className="h-3 w-3" />
+                            <X className="h-3 w-3 text-white stroke-2" />
                         </button>
                     </div>
                 ))}
                 
-                {(multiple || previews.length === 0) && (
+                {(multiple || (existingUrls.length === 0 && filePreviews.length === 0)) && (
                     <button
                         type="button"
                         onClick={() => fileInputRef.current?.click()}

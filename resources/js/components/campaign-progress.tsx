@@ -1,12 +1,9 @@
-import type { CampaignPalette } from '@/lib/colors';
-
 interface CampaignProgressProps {
-    raisedAmount: number;
+    raisedAmount?: number;
     goalAmount: number;
-    donorCount: number;
+    donorCount?: number;
     progress: number;
     formatCurrency: (amount: number) => string;
-    palette: CampaignPalette;
     className?: string;
 }
 
@@ -16,18 +13,13 @@ export default function CampaignProgress({
     donorCount,
     progress,
     formatCurrency,
-    palette,
     className = '',
 }: CampaignProgressProps) {
     return (
         <section
-            className={`space-y-4 rounded-2xl p-5 md:p-6 ${className}`}
-            style={{ backgroundColor: palette['surface-inverse'] }}
+            className={`space-y-4 rounded-2xl bg-brand-surface-inverse p-5 md:p-6 ${className}`}
         >
-            <span
-                className="font-inter text-[12px] font-bold tracking-widest uppercase"
-                style={{ color: palette['foreground-muted'] }}
-            >
+            <span className="font-inter text-[12px] font-bold tracking-widest text-brand-foreground-muted uppercase">
                 Campaign Progress
             </span>
             <div className="h-2 w-full overflow-hidden rounded-full bg-white/10">
@@ -39,7 +31,7 @@ export default function CampaignProgress({
             <div className="flex items-end justify-between">
                 <div>
                     <span className="font-geist text-2xl font-bold text-white">
-                        {formatCurrency(raisedAmount)}
+                        {formatCurrency(raisedAmount ?? 0)}
                     </span>
                     <p className="font-inter text-[11px] text-white/60">
                         raised of {formatCurrency(goalAmount)}
@@ -47,7 +39,7 @@ export default function CampaignProgress({
                 </div>
                 <div className="text-right">
                     <span className="font-geist text-2xl font-bold text-white">
-                        {donorCount}
+                        {donorCount ?? 'N/A'}
                     </span>
                     <p className="font-inter text-[11px] text-white/60 uppercase">
                         donors

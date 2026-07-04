@@ -1,46 +1,22 @@
 import { Head, Link } from '@inertiajs/react';
 import { Heart, ChevronRight, ShieldCheck } from 'lucide-react';
-import { useMemo } from 'react';
 import { show as showCampaign } from '@/routes/campaigns';
-import { generateCampaignPalette } from '@/lib/colors';
 
-interface Campaign {
-    id: number;
-    name: string;
-    tagline: string;
-    goal_amount: number;
-    hero_url: string;
-    charity: {
-        name: string;
-        brand_color: string;
-        surface_tint: 'warm' | 'cool' | 'neutral';
-        logo_url: string;
-    };
-    currency: {
-        code: string;
-        symbol: string;
-    };
-}
+import type { Campaign } from '@/types';
+
+import { useBrandBranding } from '@/hooks/use-brand-branding';
 
 function CampaignCard({ campaign }: { campaign: Campaign }) {
-    const palette = useMemo(
-        () =>
-            generateCampaignPalette(
-                campaign.charity.brand_color,
-                campaign.charity.surface_tint || 'warm',
-            ),
-        [campaign.charity.brand_color, campaign.charity.surface_tint],
+    const brandingStyles = useBrandBranding(
+        campaign.charity.brand_color,
+        campaign.charity.surface_tint || 'warm',
     );
 
     return (
         <Link href={showCampaign(campaign.id)} className="group block">
             <article
-                className="flex h-full flex-col overflow-hidden rounded-[2rem] border transition-all duration-500 group-hover:-translate-y-2 group-hover:shadow-2xl"
-                style={{
-                    backgroundColor: 'white',
-                    borderColor: palette['surface-secondary'],
-                    boxShadow: '0 10px 30px -15px rgba(0,0,0,0.05)',
-                }}
+                className="flex h-full flex-col overflow-hidden rounded-[2rem] border border-brand-surface-secondary bg-white shadow-[0_10px_30px_-15px_rgba(0,0,0,0.05)] transition-all duration-500 group-hover:-translate-y-2 group-hover:shadow-2xl"
+                style={brandingStyles}
             >
                 <div className="relative aspect-4/3 overflow-hidden">
                     {campaign.hero_url ? (
@@ -61,79 +37,43 @@ function CampaignCard({ campaign }: { campaign: Campaign }) {
                                     className="h-4 w-4 object-contain"
                                 />
                             )}
-                            <span
-                                className="font-inter text-[10px] font-bold tracking-widest uppercase"
-                                style={{ color: palette['foreground-primary'] }}
-                            >
+                            <span className="font-inter text-[10px] font-bold tracking-widest text-brand-foreground uppercase">
                                 {campaign.charity.name}
                             </span>
                         </div>
                     </div>
                     {/* Hover Overlay */}
-                    <div
-                        className="absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-10"
-                        style={{ backgroundColor: palette['accent-primary'] }}
-                    />
+                    <div className="absolute inset-0 bg-brand-primary opacity-0 transition-opacity duration-500 group-hover:opacity-10" />
                 </div>
 
                 <div className="flex grow flex-col space-y-3 p-7">
-                    <h3
-                        className="font-playfair line-clamp-1 text-2xl font-bold"
-                        style={{ color: palette['foreground-primary'] }}
-                    >
+                    <h3 className="line-clamp-1 font-playfair text-2xl font-bold text-brand-foreground">
                         {campaign.name}
                     </h3>
-                    <p
-                        className="font-inter line-clamp-2 text-sm leading-relaxed font-medium"
-                        style={{ color: palette['foreground-secondary'] }}
-                    >
+                    <p className="line-clamp-2 font-inter text-sm leading-relaxed font-medium text-brand-foreground-secondary">
                         {campaign.tagline}
                     </p>
 
                     <div className="mt-auto space-y-4 pt-4">
-                        <div
-                            className="h-1.5 w-full overflow-hidden rounded-full"
-                            style={{
-                                backgroundColor: palette['surface-secondary'],
-                            }}
-                        >
+                        <div className="h-1.5 w-full overflow-hidden rounded-full bg-brand-surface-secondary">
                             <div
-                                className="h-full rounded-full transition-all duration-1000 group-hover:opacity-80"
-                                style={{
-                                    width: '45%',
-                                    backgroundColor: palette['accent-primary'],
-                                }}
+                                className="h-full rounded-full bg-brand-primary transition-all duration-1000 group-hover:opacity-80"
+                                style={{ width: '45%' }}
                             />
                         </div>
                         <div className="flex items-center justify-between">
                             <div className="flex flex-col">
-                                <span
-                                    className="font-geist text-[14px] font-bold"
-                                    style={{
-                                        color: palette['foreground-primary'],
-                                    }}
-                                >
+                                <span className="font-geist text-[14px] font-bold text-brand-foreground">
                                     {campaign.currency.symbol}
                                     {(
                                         campaign.goal_amount / 100
                                     ).toLocaleString()}
                                 </span>
-                                <span
-                                    className="font-inter text-[10px] font-bold tracking-wider uppercase"
-                                    style={{
-                                        color: palette['foreground-muted'],
-                                    }}
-                                >
+                                <span className="font-inter text-[10px] font-bold tracking-wider text-brand-foreground-muted uppercase">
                                     Target Goal
                                 </span>
                             </div>
-                            <div
-                                className="flex h-10 w-10 items-center justify-center rounded-full transition-all duration-300 group-hover:scale-110"
-                                style={{
-                                    backgroundColor: palette['accent-primary'],
-                                    color: 'white',
-                                }}
-                            >
+                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-primary text-white transition-all duration-300 group-hover:scale-110">
                                 <ChevronRight className="h-5 w-5" />
                             </div>
                         </div>
@@ -146,7 +86,7 @@ function CampaignCard({ campaign }: { campaign: Campaign }) {
 
 export default function Welcome({ campaigns }: { campaigns: Campaign[] }) {
     return (
-        <div className="font-inter min-h-screen bg-[#F9F9F8]">
+        <div className="min-h-screen bg-[#F9F9F8] font-inter">
             <Head title="Tap For Good - Every Tap Matters" />
 
             {/* Premium Hero Section */}
@@ -169,7 +109,7 @@ export default function Welcome({ campaigns }: { campaigns: Campaign[] }) {
                         Every Tap <br />
                         <span className="italic opacity-50">Matters.</span>
                     </h1>
-                    <p className="font-inter mx-auto max-w-xl text-lg font-medium text-white/90 sm:text-xl">
+                    <p className="mx-auto max-w-xl font-inter text-lg font-medium text-white/90 sm:text-xl">
                         A seamless, secure way to support the causes you love.
                         Direct impact, powered by Mastercard.
                     </p>
@@ -192,7 +132,7 @@ export default function Welcome({ campaigns }: { campaigns: Campaign[] }) {
                             <h2 className="font-playfair text-3xl font-bold text-zinc-900">
                                 New campaigns incoming
                             </h2>
-                            <p className="font-inter mx-auto max-w-sm font-medium text-zinc-400">
+                            <p className="mx-auto max-w-sm font-inter font-medium text-zinc-400">
                                 We're working with charities to launch
                                 meaningful initiatives. Check back very soon.
                             </p>
@@ -214,7 +154,7 @@ export default function Welcome({ campaigns }: { campaigns: Campaign[] }) {
                         </p>
                     </div>
                     <div className="flex flex-wrap items-center justify-center gap-12 opacity-40 grayscale">
-                        <div className="font-geist flex items-center gap-2 font-bold">
+                        <div className="flex items-center gap-2 font-geist font-bold">
                             <ShieldCheck className="h-6 w-6" />
                             SSL SECURED
                         </div>

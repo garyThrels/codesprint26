@@ -1,21 +1,12 @@
 import { Head } from '@inertiajs/react';
 import { DataTable } from '@/components/data-table';
 import type {
+    Paginated,
+    AuditLogEntry,
     DataTableColumn,
     DataTableFilters,
-} from '@/components/data-table';
+} from '@/types';
 import { index as auditLogIndex, exportMethod } from '@/routes/admin/audit-log';
-import type { Paginated } from '@/types';
-
-type AuditLogEntry = {
-    id: number;
-    description: string | null;
-    event: string | null;
-    logName: string | null;
-    causer: string | null;
-    subjectType: string | null;
-    loggedAt: string;
-};
 
 type AuditLogPageProps = {
     entries: Paginated<AuditLogEntry>;

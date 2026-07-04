@@ -3,36 +3,9 @@ import { useMemo } from 'react';
 import CampaignNavbar from '@/components/campaign-navbar';
 import CampaignProgress from '@/components/campaign-progress';
 import DonationForm from '@/components/donation-form';
-import { generateCampaignPalette } from '@/lib/colors';
+import { useBrandBranding } from '@/hooks/use-brand-branding';
 
-interface Campaign {
-    id: number;
-    name: string;
-    tagline: string;
-    currency_id: number;
-    description_html: string;
-    about_title: string;
-    goal_amount: number;
-    raised_amount: number;
-    donor_count: number;
-    currency: {
-        code: string;
-        symbol: string;
-    };
-    donation_presets: { amount: number; label: string }[];
-    preselected_index: number;
-    allow_custom_amount: boolean;
-    hero_url: string;
-    gallery: string[];
-}
-
-interface Charity {
-    name: string;
-    slogan: string;
-    brand_color: string;
-    surface_tint: 'warm' | 'cool' | 'neutral';
-    logo_url: string;
-}
+import type { Campaign, Charity } from '@/types';
 
 export default function CampaignShow({
     campaign,
@@ -41,10 +14,9 @@ export default function CampaignShow({
     campaign: Campaign;
     charity: Charity;
 }) {
-    const palette = useMemo(
-        () =>
-            generateCampaignPalette(charity.brand_color, charity.surface_tint),
-        [charity.brand_color, charity.surface_tint],
+    const brandingStyles = useBrandBranding(
+        charity.brand_color,
+        charity.surface_tint,
     );
 
     const progress = useMemo(() => {
@@ -67,16 +39,10 @@ export default function CampaignShow({
     };
 
     return (
-        <div
-            className="min-h-screen"
-            style={{ backgroundColor: palette['surface-primary'] }}
-        >
+        <div className="min-h-screen bg-brand-surface" style={brandingStyles}>
             <Head title={campaign.name} />
 
-            <CampaignNavbar
-                title={`${campaign.name} - ${charity.name}`}
-                palette={palette}
-            />
+            <CampaignNavbar title={`${campaign.name} - ${charity.name}`} />
 
             <main className="mx-auto max-w-[1280px] p-4 md:px-10 md:py-8">
                 <div className="flex flex-col gap-8 md:flex-row">
@@ -91,9 +57,9 @@ export default function CampaignShow({
                             />
                             {/* Gradient Overlay */}
                             <div
-                                className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent"
+                                className="absolute inset-0"
                                 style={{
-                                    background: `linear-gradient(to top, ${palette['surface-inverse']}E0 0%, transparent 70%)`,
+                                    background: `linear-gradient(to top, var(--brand-surface-inverse)E0 0%, transparent 70%)`,
                                 }}
                             />
 
@@ -115,13 +81,7 @@ export default function CampaignShow({
                                         {campaign.tagline}
                                     </p>
                                     <div className="mt-2">
-                                        <span
-                                            className="font-inter rounded-full px-2 py-1 text-sm font-semibold text-white"
-                                            style={{
-                                                backgroundColor:
-                                                    palette['surface-inverse'],
-                                            }}
-                                        >
+                                        <span className="rounded-full bg-brand-surface-inverse px-2 py-1 font-inter text-sm font-semibold text-white">
                                             {charity.name}
                                         </span>
                                     </div>
@@ -155,27 +115,15 @@ export default function CampaignShow({
                             donorCount={campaign.donor_count}
                             progress={progress}
                             formatCurrency={formatCurrency}
-                            palette={palette}
                         />
 
                         {/* About Section */}
-                        <section
-                            className="space-y-4 rounded-2xl p-5 shadow-sm md:space-y-6 md:rounded-3xl md:p-8"
-                            style={{
-                                backgroundColor: palette['surface-secondary'],
-                            }}
-                        >
-                            <h2
-                                className="font-playfair text-xl font-bold md:text-2xl"
-                                style={{ color: palette['foreground-primary'] }}
-                            >
+                        <section className="space-y-4 rounded-2xl bg-brand-surface-secondary p-5 shadow-sm md:space-y-6 md:rounded-3xl md:p-8">
+                            <h2 className="font-playfair text-xl font-bold text-brand-foreground md:text-2xl">
                                 {campaign.about_title || 'About this Campaign'}
                             </h2>
                             <div
-                                className="font-inter text-sm leading-[1.65] md:text-[15px]"
-                                style={{
-                                    color: palette['foreground-secondary'],
-                                }}
+                                className="font-inter text-sm leading-[1.65] text-brand-foreground-secondary md:text-[15px]"
                                 dangerouslySetInnerHTML={{
                                     __html: campaign.description_html,
                                 }}
@@ -204,34 +152,17 @@ export default function CampaignShow({
                             donorCount={campaign.donor_count}
                             progress={progress}
                             formatCurrency={formatCurrency}
-                            palette={palette}
                         />
 
                         {/* Additional Info / Trust Badges */}
                         <div className="space-y-4 px-4 text-center">
-                            <p
-                                className="font-inter text-[13px] italic"
-                                style={{
-                                    color: palette['foreground-secondary'],
-                                }}
-                            >
+                            <p className="font-inter text-[13px] text-brand-foreground-secondary italic">
                                 "{charity.slogan}"
                             </p>
                         </div>
                     </aside>
                 </div>
             </main>
-
-            {/* Global Styles for Fonts and Palette */}
-            <style
-                dangerouslySetInnerHTML={{
-                    __html: `
-                .font-playfair { font-family: 'Playfair Display', serif; }
-                .font-inter { font-family: 'Inter', sans-serif; }
-                .font-geist { font-family: 'Geist Mono', monospace; }
-            `,
-                }}
-            />
         </div>
     );
 }

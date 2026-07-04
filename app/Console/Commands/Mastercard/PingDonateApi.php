@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands\Mastercard;
 
-use App\Services\Mastercard\DonateClient;
+use Domain\Mastercard\Services\DonateClient;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;

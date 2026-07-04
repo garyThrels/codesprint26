@@ -11,21 +11,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import type { Paginated } from '@/types';
-
-export type DataTableColumn<T> = {
-    key: string;
-    label: string;
-    sortable?: boolean;
-    render?: (row: T) => React.ReactNode;
-};
-
-export type DataTableFilters = {
-    search?: string | null;
-    sort?: string;
-    direction?: 'asc' | 'desc';
-    per_page?: number;
-};
+import type { Paginated, DataTableColumn, DataTableFilters } from '@/types';
 
 type DataTableProps<T> = {
     columns: DataTableColumn<T>[];
